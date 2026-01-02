@@ -1,5 +1,40 @@
 // History Page JavaScript
 
+// Convert markdown to plain text for preview
+function markdownToText(markdown) {
+    if (!markdown) return '';
+    
+    let text = markdown;
+    // Remove markdown headers
+    text = text.replace(/^#+\s+/gm, '');
+    // Remove markdown bold/italic
+    text = text.replace(/\*\*(.+?)\*\*/g, '$1');
+    text = text.replace(/\*(.+?)\*/g, '$1');
+    // Remove markdown links but keep text
+    text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+    // Remove code blocks
+    text = text.replace(/```[\s\S]*?```/g, '');
+    text = text.replace(/`([^`]+)`/g, '$1');
+    // Remove images
+    text = text.replace(/!\[([^\]]*)\]\([^)]+\)/g, '');
+    // Clean up extra whitespace
+    text = text.replace(/\n{3,}/g, '\n\n');
+    text = text.trim();
+    return text;
+}
+
+// Process previews on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const previews = document.querySelectorAll('.post-preview[data-content]');
+    previews.forEach(preview => {
+        const markdown = preview.getAttribute('data-content');
+        const text = markdownToText(markdown);
+        // Truncate to ~25 words
+        const words = text.split(/\s+/).slice(0, 25).join(' ');
+        preview.textContent = words + (text.split(/\s+/).length > 25 ? '...' : '');
+    });
+});
+
 // Filter functionality
 const filterStatus = document.getElementById('filterStatus');
 const filterSaved = document.getElementById('filterSaved');

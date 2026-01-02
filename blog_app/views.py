@@ -103,7 +103,9 @@ def generate_post(request):
                 key_points=validated_data.get('key_points', ''),
                 examples=validated_data.get('examples', ''),
                 tone=validated_data.get('tone', 'friendly'),
-                crew_config_id=validated_data.get('crew_config_id')
+                length=validated_data.get('length', 'medium'),
+                crew_config_id=validated_data.get('crew_config_id'),
+                blog_post_id=blog_post.id
             )
             
             # Extract title from content
@@ -120,6 +122,8 @@ def generate_post(request):
             # Update status to failed on error
             blog_post.status = 'failed'
             blog_post.content = f"Error: {str(e)}"
+            blog_post.progress_message = f"Error occurred: {str(e)}"
+            blog_post.progress_percentage = 0
             blog_post.save()
     
     # Start background thread

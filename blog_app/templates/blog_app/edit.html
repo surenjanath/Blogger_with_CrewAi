@@ -57,7 +57,7 @@
             <!-- Toolbar -->
             <div class="toolbar">
                 <div class="toolbar-left">
-                    <a href="/history/" class="toolbar-btn">← Back</a>
+                    <a href="/history/" class="toolbar-btn" style="text-decoration: none; color: inherit;">← Back</a>
                     <div class="toolbar-divider"></div>
                     <button class="toolbar-btn" title="Save" id="saveEditBtn">💾 Save</button>
                 </div>
@@ -74,106 +74,36 @@
             <!-- Editor -->
             <div class="editor-container">
                 <div class="editor-content">
-                    <input type="text" id="postTitle" class="post-title-input" value="{{ post.topic }}" placeholder="Post Title">
-                    <div contenteditable="true" id="postContent" class="post-content-editable">
-                        {{ post.content|safe }}
+                    <div id="postTitle" class="post-title" contenteditable="true" spellcheck="true" data-placeholder="Your Blog Post Title">{{ post.title|default:post.topic }}</div>
+                    <div id="postContent" class="post-content" contenteditable="true" spellcheck="true" data-placeholder="Start writing your blog post here...">
+                        {{ post.content }}
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- Export Modal -->
+    <div id="exportModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Export Blog Post</h3>
+                <button class="modal-close" id="closeExportModal">×</button>
+            </div>
+            <div class="modal-body">
+                <button class="export-option" id="exportPDF">📄 Export as PDF</button>
+                <button class="export-option" id="exportMarkdown">📝 Export as Markdown</button>
+                <button class="export-option" id="exportText">📄 Export as Text</button>
+                <button class="export-option" id="exportHTML">🌐 Export as HTML</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const postId = {{ post.id }};
-        const postContent = document.getElementById('postContent');
-        const postTitle = document.getElementById('postTitle');
-        const saveEditBtn = document.getElementById('saveEditBtn');
-        const wordCount = document.getElementById('wordCount');
-        const readTime = document.getElementById('readTime');
-
-        function updateStats() {
-            const text = postContent.innerText || postContent.textContent;
-            const words = text.split(/\s+/).filter(word => word.length > 0).length;
-            const readingTime = Math.ceil(words / 200);
-            
-            wordCount.textContent = `${words} words`;
-            readTime.textContent = `${readingTime} min read`;
-        }
-
-        postContent.addEventListener('input', updateStats);
-        postTitle.addEventListener('input', updateStats);
-
-        saveEditBtn.addEventListener('click', async () => {
-            saveEditBtn.disabled = true;
-            saveEditBtn.textContent = 'Saving...';
-            
-            try {
-                const response = await fetch(`/api/post/${postId}/update/`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCsrfToken(),
-                    },
-                    body: JSON.stringify({
-                        title: postTitle.value,
-                        topic: postTitle.value,
-                        content: postContent.innerHTML
-                    }),
-                });
-                
-                if (response.ok) {
-                    saveEditBtn.textContent = '✓ Saved';
-                    setTimeout(() => {
-                        saveEditBtn.textContent = '💾 Save';
-                        saveEditBtn.disabled = false;
-                    }, 2000);
-                } else {
-                    alert('Failed to save');
-                    saveEditBtn.disabled = false;
-                    saveEditBtn.textContent = '💾 Save';
-                }
-            } catch (error) {
-                console.error('Error saving:', error);
-                alert('Error saving post');
-                saveEditBtn.disabled = false;
-                saveEditBtn.textContent = '💾 Save';
-            }
-        });
-
-        function getCsrfToken() {
-            const cookies = document.cookie.split(';');
-            for (let cookie of cookies) {
-                const [name, value] = cookie.trim().split('=');
-                if (name === 'csrftoken') return value;
-            }
-            return '';
-        }
-
-        updateStats();
+        window.postId = {{ post.id }};
     </script>
-    <style>
-        .post-title-input {
-            width: 100%;
-            font-size: 28px;
-            font-weight: 700;
-            color: #0f172a;
-            border: none;
-            outline: none;
-            padding: 0;
-            margin-bottom: 24px;
-            font-family: inherit;
-        }
-        .post-content-editable {
-            min-height: 400px;
-            font-size: 15px;
-            line-height: 1.75;
-            color: #334155;
-            outline: none;
-        }
-        .post-content-editable:focus {
-            outline: none;
-        }
-    </style>
+    {% load static %}
+    <script src="{% static 'blog_app/js/edit.js' %}"></script>
 </body>
 </html>
 

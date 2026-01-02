@@ -78,7 +78,7 @@
                 {% for post in posts %}
                 <div class="post-card" data-status="{{ post.status }}" data-saved="{{ post.is_saved }}">
                     <div class="post-card-header">
-                        <h3>{{ post.topic|truncatewords:10 }}</h3>
+                        <h3>{{ post.title|default:post.topic|truncatewords:10 }}</h3>
                         <div style="display: flex; gap: 6px; align-items: center;">
                             {% if post.is_saved %}
                             <span class="badge saved">Saved</span>
@@ -89,7 +89,7 @@
                         </div>
                     </div>
                     {% if post.content %}
-                    <p class="post-preview">{{ post.content|truncatewords:25|striptags }}</p>
+                    <p class="post-preview" data-content="{{ post.content|escape }}">Loading preview...</p>
                     {% else %}
                     <p class="post-preview" style="color: #94a3b8; font-style: italic;">No content yet...</p>
                     {% endif %}

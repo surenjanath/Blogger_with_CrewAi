@@ -11,8 +11,8 @@ const stopBtn = document.getElementById('stopBtn');
 const loadingSection = document.getElementById('loadingSection');
 const resultSection = document.getElementById('resultSection');
 const errorSection = document.getElementById('errorSection');
-const postContent = document.getElementById('postContent');
-const postTitle = document.getElementById('postTitle');
+let postContent = document.getElementById('postContent'); // Use let for reassignment
+let postTitle = document.getElementById('postTitle'); // Use let for reassignment
 const topicPreview = document.getElementById('topicPreview');
 const savedIndicator = document.getElementById('savedIndicator');
 const wordCount = document.getElementById('wordCount');
@@ -32,6 +32,13 @@ const closeExportModal = document.getElementById('closeExportModal');
 const researcherStatus = document.getElementById('researcherStatus');
 const writerStatus = document.getElementById('writerStatus');
 const editorStatus = document.getElementById('editorStatus');
+
+// Progress elements
+const progressBar = document.getElementById('progressBar');
+const progressPercentage = document.getElementById('progressPercentage');
+const currentAgentName = document.getElementById('currentAgentName');
+const currentTaskDescription = document.getElementById('currentTaskDescription');
+const progressMessageText = document.getElementById('progressMessageText');
 
 // Character counters
 const audienceCount = document.getElementById('audienceCount');
@@ -194,6 +201,145 @@ document.getElementById('exportHTML').addEventListener('click', () => {
     exportModal.classList.add('hidden');
 });
 
+// PDF Export using browser's print functionality
+document.getElementById('exportPDF').addEventListener('click', () => {
+    exportModal.classList.add('hidden');
+    
+    // Create a new window with the content formatted for PDF
+    const printWindow = window.open('', '_blank');
+    const title = postTitle.textContent || postTitle.innerText;
+    const content = postContent.innerHTML;
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>${title}</title>
+            <style>
+                @media print {
+                    @page {
+                        margin: 2cm;
+                    }
+                    body {
+                        margin: 0;
+                        padding: 0;
+                    }
+                }
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 40px 20px;
+                    line-height: 1.8;
+                    color: #0f172a;
+                    font-size: 14px;
+                }
+                h1 {
+                    font-size: 32px;
+                    font-weight: 700;
+                    color: #0f172a;
+                    margin-bottom: 24px;
+                    margin-top: 0;
+                    line-height: 1.2;
+                }
+                h2 {
+                    font-size: 24px;
+                    font-weight: 600;
+                    color: #0f172a;
+                    margin-top: 32px;
+                    margin-bottom: 16px;
+                    line-height: 1.3;
+                }
+                h3 {
+                    font-size: 20px;
+                    font-weight: 600;
+                    color: #0f172a;
+                    margin-top: 24px;
+                    margin-bottom: 12px;
+                    line-height: 1.4;
+                }
+                h4 {
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #0f172a;
+                    margin-top: 20px;
+                    margin-bottom: 10px;
+                }
+                p {
+                    margin-bottom: 16px;
+                    line-height: 1.8;
+                }
+                ul, ol {
+                    margin-bottom: 16px;
+                    padding-left: 24px;
+                }
+                li {
+                    margin-bottom: 8px;
+                    line-height: 1.6;
+                }
+                code {
+                    background: #f1f5f9;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    font-family: 'Courier New', monospace;
+                    font-size: 13px;
+                }
+                pre {
+                    background: #f8fafc;
+                    padding: 16px;
+                    border-radius: 8px;
+                    overflow-x: auto;
+                    margin-bottom: 16px;
+                    border: 1px solid #e2e8f0;
+                }
+                pre code {
+                    background: none;
+                    padding: 0;
+                }
+                blockquote {
+                    border-left: 4px solid #3b82f6;
+                    padding-left: 16px;
+                    margin: 16px 0;
+                    color: #475569;
+                    font-style: italic;
+                }
+                a {
+                    color: #3b82f6;
+                    text-decoration: none;
+                }
+                a:hover {
+                    text-decoration: underline;
+                }
+                hr {
+                    border: none;
+                    border-top: 1px solid #e2e8f0;
+                    margin: 32px 0;
+                }
+                strong {
+                    font-weight: 600;
+                    color: #0f172a;
+                }
+                em {
+                    font-style: italic;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>${title}</h1>
+            ${content}
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    
+    // Wait for content to load, then print
+    setTimeout(() => {
+        printWindow.print();
+    }, 250);
+});
+
 function downloadFile(content, filename, mimeType) {
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
@@ -206,15 +352,206 @@ function downloadFile(content, filename, mimeType) {
     URL.revokeObjectURL(url);
 }
 
+// Convert markdown to HTML (comprehensive markdown parser)
+function markdownToHtml(markdown) {
+    if (!markdown) return '';
+    
+    let html = markdown;
+    
+    // Remove title from content if it's the first line (we handle title separately)
+    html = html.replace(/^#\s+(.+)$/m, '');
+    
+    // Code blocks (must be done before other processing to preserve content)
+    html = html.replace(/```([\s\S]*?)```/g, (match, code) => {
+        return '<pre><code>' + code.trim() + '</code></pre>';
+    });
+    
+    // Inline code
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    
+    // Headers (must be done before other processing)
+    html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+    
+    // Bold and italic (order matters - bold before italic)
+    html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+    
+    // Links
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    
+    // Images
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; height: auto;" />');
+    
+    // Horizontal rules
+    html = html.replace(/^---$/gm, '<hr />');
+    html = html.replace(/^\*\*\*$/gm, '<hr />');
+    
+    // Blockquotes
+    html = html.replace(/^>\s+(.+)$/gm, '<blockquote>$1</blockquote>');
+    
+    // Tables - process before line-by-line processing
+    // Match table pattern: header row, separator row, data rows
+    html = html.replace(/(\|[^\n]+\|\n\|[-\s|:]+\|\n(?:\|[^\n]+\|\n?)+)/g, (match) => {
+        const lines = match.trim().split('\n').filter(line => line.trim());
+        if (lines.length < 2) return match;
+        
+        // Parse header row
+        const headerRow = lines[0];
+        const headers = headerRow.split('|').map(h => h.trim()).filter(h => h);
+        
+        if (headers.length === 0) return match;
+        
+        // Skip separator row (lines[1])
+        // Parse data rows
+        const dataRows = lines.slice(2);
+        
+        let tableHtml = '<table>\n<thead>\n<tr>\n';
+        headers.forEach(header => {
+            // Process markdown in headers (bold, italic, etc.)
+            let headerText = header;
+            headerText = headerText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            headerText = headerText.replace(/\*(.+?)\*/g, '<em>$1</em>');
+            tableHtml += `<th>${headerText}</th>\n`;
+        });
+        tableHtml += '</tr>\n</thead>\n<tbody>\n';
+        
+        dataRows.forEach(row => {
+            const cells = row.split('|').map(c => c.trim()).filter(c => c);
+            if (cells.length > 0) {
+                tableHtml += '<tr>\n';
+                cells.forEach(cell => {
+                    // Process markdown in cells (bold, italic, links, etc.)
+                    let cellText = cell;
+                    cellText = cellText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                    cellText = cellText.replace(/\*(.+?)\*/g, '<em>$1</em>');
+                    cellText = cellText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+                    tableHtml += `<td>${cellText}</td>\n`;
+                });
+                tableHtml += '</tr>\n';
+            }
+        });
+        
+        tableHtml += '</tbody>\n</table>';
+        return tableHtml;
+    });
+    
+    // Lists - process line by line with nested list support
+    const lines = html.split('\n');
+    let listStack = []; // Stack to track nested lists: {type: 'ul'|'ol', level: number}
+    let result = [];
+    let lastWasOrderedItem = false;
+    
+    function getIndentLevel(line) {
+        const match = line.match(/^(\s*)/);
+        return match ? Math.floor(match[1].length / 2) : 0; // 2 spaces = 1 level
+    }
+    
+    function closeListsToLevel(level) {
+        while (listStack.length > 0 && listStack[listStack.length - 1].level >= level) {
+            const list = listStack.pop();
+            result.push(`</${list.type}>`);
+        }
+    }
+    
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmed = line.trim();
+        
+        // Check for unordered list item (with or without indentation)
+        const unorderedMatch = trimmed.match(/^[\*\-\+]\s+(.+)$/);
+        // Check for ordered list item (with or without indentation)
+        const orderedMatch = trimmed.match(/^\d+\.\s+(.+)$/);
+        
+        if (unorderedMatch) {
+            const level = getIndentLevel(line);
+            const content = unorderedMatch[1];
+            
+            // If previous item was ordered and this is unindented, nest it under the ordered item
+            let actualLevel = level;
+            if (lastWasOrderedItem && level === 0 && listStack.length > 0 && listStack[listStack.length - 1].type === 'ol') {
+                actualLevel = listStack[listStack.length - 1].level + 1;
+            }
+            
+            // Close lists at same or higher level
+            closeListsToLevel(actualLevel);
+            
+            // Open unordered list if needed
+            if (listStack.length === 0 || listStack[listStack.length - 1].type !== 'ul' || listStack[listStack.length - 1].level !== actualLevel) {
+                result.push('<ul>');
+                listStack.push({type: 'ul', level: actualLevel});
+            }
+            
+            result.push('<li>' + content + '</li>');
+            lastWasOrderedItem = false;
+        } else if (orderedMatch) {
+            const level = getIndentLevel(line);
+            const content = orderedMatch[1];
+            
+            // Close lists at same or higher level
+            closeListsToLevel(level);
+            
+            // Open ordered list if needed
+            if (listStack.length === 0 || listStack[listStack.length - 1].type !== 'ol' || listStack[listStack.length - 1].level !== level) {
+                result.push('<ol>');
+                listStack.push({type: 'ol', level: level});
+            }
+            
+            result.push('<li>' + content + '</li>');
+            lastWasOrderedItem = true;
+        } else {
+            lastWasOrderedItem = false;
+            
+            // Close all lists when we hit non-list content (unless it's a blank line within a list)
+            if (trimmed || listStack.length === 0) {
+                closeListsToLevel(0);
+            }
+            
+            // Process paragraphs and other block elements
+            // Skip table rows (they're already processed) and blank lines
+            if (trimmed && !trimmed.match(/^<(h[1-4]|pre|blockquote|hr|table|thead|tbody|tr|th|td)/) && !trimmed.match(/^\|/)) {
+                result.push('<p>' + trimmed + '</p>');
+            } else if (trimmed) {
+                result.push(trimmed);
+            }
+        }
+    }
+    
+    // Close any remaining open lists
+    closeListsToLevel(0);
+    
+    html = result.join('\n');
+    
+    // Clean up multiple empty paragraphs
+    html = html.replace(/<p>\s*<\/p>/g, '');
+    html = html.replace(/\n{3,}/g, '\n\n');
+    
+    return html.trim();
+}
+
 function convertToMarkdown(html) {
     let md = html;
     md = md.replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n\n');
     md = md.replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n\n');
     md = md.replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n\n');
+    md = md.replace(/<h4[^>]*>(.*?)<\/h4>/gi, '#### $1\n\n');
     md = md.replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n\n');
     md = md.replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**');
     md = md.replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*');
-    md = md.replace(/<u[^>]*>(.*?)<\/u>/gi, '$1');
+    md = md.replace(/<code[^>]*>(.*?)<\/code>/gi, '`$1`');
+    md = md.replace(/<pre[^>]*>(.*?)<\/pre>/gi, '```\n$1\n```');
+    md = md.replace(/<a[^>]*href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi, '[$2]($1)');
+    md = md.replace(/<ul[^>]*>/gi, '');
+    md = md.replace(/<\/ul>/gi, '\n');
+    md = md.replace(/<ol[^>]*>/gi, '');
+    md = md.replace(/<\/ol>/gi, '\n');
+    md = md.replace(/<li[^>]*>(.*?)<\/li>/gi, '- $1\n');
+    md = md.replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gi, '> $1\n');
+    md = md.replace(/<hr\s*\/?>/gi, '---\n');
     md = md.replace(/<br\s*\/?>/gi, '\n');
     md = md.replace(/<[^>]+>/g, '');
     md = md.replace(/\n{3,}/g, '\n\n');
@@ -322,6 +659,7 @@ blogForm.addEventListener('submit', async (e) => {
             key_points: keyPoints.value.trim(),
             examples: examples.value.trim(),
             tone: tone.value,
+            length: length.value,
             crew_config_id: crewConfigSelect.value ? parseInt(crewConfigSelect.value) : null,
         };
         
@@ -377,19 +715,8 @@ function startPolling(postId) {
             const data = await response.json();
             
             if (data.status === 'processing') {
-                if (!researcherStatus.textContent.includes('Completed')) {
-                    updateAgentStatus('researcher', 'active');
-                }
-                setTimeout(() => {
-                    if (!writerStatus.textContent.includes('Completed')) {
-                        updateAgentStatus('writer', 'active');
-                    }
-                }, 3000);
-                setTimeout(() => {
-                    if (!editorStatus.textContent.includes('Completed')) {
-                        updateAgentStatus('editor', 'active');
-                    }
-                }, 6000);
+                // Update progress from real data
+                updateProgressFromData(data);
             } else if (data.status === 'completed') {
                 clearInterval(pollInterval);
                 showResult(data);
@@ -406,6 +733,81 @@ function startPolling(postId) {
             resetForm();
         }
     }, 2000);
+}
+
+// Update progress from API data
+function updateProgressFromData(data) {
+    // Update progress bar
+    const percentage = data.progress_percentage || 0;
+    updateProgressBar(percentage);
+    
+    // Update current agent
+    if (data.current_agent) {
+        currentAgentName.textContent = data.current_agent;
+    }
+    
+    // Update current task
+    if (data.current_task) {
+        currentTaskDescription.textContent = data.current_task;
+    }
+    
+    // Update progress message
+    if (data.progress_message) {
+        progressMessageText.textContent = data.progress_message;
+    }
+    
+    // Update agent status indicators based on current agent
+    updateAgentStatusFromProgress(data.current_agent);
+}
+
+// Update progress bar
+function updateProgressBar(percentage) {
+    if (progressBar && progressPercentage) {
+        const clampedPercentage = Math.min(100, Math.max(0, percentage));
+        progressBar.style.width = `${clampedPercentage}%`;
+        progressPercentage.textContent = `${clampedPercentage}%`;
+    }
+}
+
+// Update current agent display
+function updateCurrentAgent(agentName, taskDescription) {
+    if (currentAgentName) {
+        currentAgentName.textContent = agentName || 'Initializing...';
+    }
+    if (currentTaskDescription) {
+        currentTaskDescription.textContent = taskDescription || 'Preparing...';
+    }
+}
+
+// Update progress message
+function updateProgressMessage(message) {
+    if (progressMessageText) {
+        progressMessageText.textContent = message || '';
+    }
+}
+
+// Update agent status indicators based on real progress
+function updateAgentStatusFromProgress(currentAgent) {
+    if (!currentAgent) return;
+    
+    const agentLower = currentAgent.toLowerCase();
+    
+    // Reset all to waiting first
+    updateAgentStatus('researcher', 'waiting');
+    updateAgentStatus('writer', 'waiting');
+    updateAgentStatus('editor', 'waiting');
+    
+    // Set active agent based on current agent name
+    if (agentLower.includes('research') || agentLower.includes('researcher')) {
+        updateAgentStatus('researcher', 'active');
+    } else if (agentLower.includes('writer') || agentLower.includes('write') || agentLower.includes('content')) {
+        updateAgentStatus('researcher', 'completed');
+        updateAgentStatus('writer', 'active');
+    } else if (agentLower.includes('editor') || agentLower.includes('edit') || agentLower.includes('review')) {
+        updateAgentStatus('researcher', 'completed');
+        updateAgentStatus('writer', 'completed');
+        updateAgentStatus('editor', 'active');
+    }
 }
 
 // Update agent status display
@@ -432,33 +834,35 @@ function updateAgentStatus(agent, status) {
 // Show result
 function showResult(data) {
     hideAllSections();
+    
+    // Hide initial state
+    const initialState = document.getElementById('initialState');
+    if (initialState) {
+        initialState.classList.add('hidden');
+    }
+    
     resultSection.classList.remove('hidden');
     
     const content = data.content || '';
     const titleMatch = content.match(/^#\s*(.+)$/m) || content.match(/^(.+)$/m);
     const title = titleMatch ? titleMatch[1].trim() : data.topic;
     
+    // Set title (editable)
     postTitle.textContent = title;
     currentPostId = data.id;
     
-    let formattedContent = content;
-    formattedContent = formattedContent.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-    formattedContent = formattedContent.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-    formattedContent = formattedContent.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-    
-    formattedContent = formattedContent.split(/\n\n+/).map(para => {
-        if (para.trim() && !para.match(/^<h[1-3]>/)) {
-            return `<p>${para.trim().replace(/\n/g, '<br>')}</p>`;
-        }
-        return para;
-    }).join('\n');
+    // Convert markdown to HTML for display and editing
+    let formattedContent = markdownToHtml(content);
     
     postContent.innerHTML = formattedContent;
     currentContent = formattedContent;
     
+    // Add event listeners for content changes
+    setupContentEditing();
+    
     updateStats(formattedContent);
-    savedIndicator.textContent = '✓';
-    savedIndicator.style.color = '#10b981';
+    savedIndicator.textContent = '●';
+    savedIndicator.style.color = '#64748b';
     
     // Show save button
     showSaveButton();
@@ -466,11 +870,107 @@ function showResult(data) {
     document.querySelector('.editor-container').scrollTop = 0;
 }
 
+// Setup content editing
+function setupContentEditing() {
+    // Update stats when content changes
+    const updateContentStats = () => {
+        const text = postContent.innerText || postContent.textContent;
+        updateStats(text);
+        
+        // Mark as unsaved
+        savedIndicator.textContent = '●';
+        savedIndicator.style.color = '#f59e0b';
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save';
+            saveBtn.style.background = '';
+        }
+    };
+    
+    // Remove existing listeners by cloning (this removes all event listeners)
+    // Then re-add listeners to the cloned elements
+    const newPostTitle = postTitle.cloneNode(true);
+    postTitle.parentNode.replaceChild(newPostTitle, postTitle);
+    // Update the global reference
+    postTitle = document.getElementById('postTitle');
+    
+    const newPostContent = postContent.cloneNode(true);
+    postContent.parentNode.replaceChild(newPostContent, postContent);
+    // Update the global reference
+    postContent = document.getElementById('postContent');
+    
+    // Add input listeners to the new elements
+    if (postTitle) {
+        postTitle.addEventListener('input', updateContentStats);
+    }
+    if (postContent) {
+        postContent.addEventListener('input', updateContentStats);
+        postContent.addEventListener('blur', () => {
+            currentContent = postContent.innerHTML;
+        });
+    }
+}
+
 // Save button functionality
 function showSaveButton() {
     const saveBtn = document.getElementById('saveBtn');
     if (saveBtn) {
         saveBtn.classList.remove('hidden');
+        // Remove existing listener and add new one
+        const newSaveBtn = saveBtn.cloneNode(true);
+        saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+        newSaveBtn.addEventListener('click', saveCurrentPost);
+    }
+}
+
+// Save current post
+async function saveCurrentPost() {
+    if (!currentPostId) return;
+    
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+    }
+    
+    try {
+        const title = postTitle.textContent.trim() || postTitle.innerText.trim();
+        const content = postContent.innerHTML || postContent.innerText;
+        
+        const response = await fetch(`/api/post/${currentPostId}/update/`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken(),
+            },
+            body: JSON.stringify({
+                title: title,
+                content: content
+            }),
+        });
+        
+        if (response.ok) {
+            savedIndicator.textContent = '✓ Saved';
+            savedIndicator.style.color = '#10b981';
+            if (saveBtn) {
+                saveBtn.textContent = '✓ Saved';
+                saveBtn.style.background = '#10b981';
+                setTimeout(() => {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Save';
+                    saveBtn.style.background = '';
+                }, 2000);
+            }
+        } else {
+            throw new Error('Failed to save post');
+        }
+    } catch (error) {
+        console.error('Error saving post:', error);
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save';
+        }
+        alert('Failed to save post. Please try again.');
     }
 }
 
@@ -484,14 +984,18 @@ async function saveCurrentPost() {
     }
     
     try {
-        const response = await fetch(`/api/post/${currentPostId}/save/`, {
-            method: 'POST',
+        const title = postTitle.textContent.trim() || postTitle.innerText.trim();
+        const content = postContent.innerHTML || postContent.innerText;
+        
+        const response = await fetch(`/api/post/${currentPostId}/update/`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCsrfToken(),
             },
             body: JSON.stringify({
-                title: postTitle.textContent
+                title: title,
+                content: content
             }),
         });
         
@@ -524,6 +1028,13 @@ async function saveCurrentPost() {
 function showError(message) {
     hideAllSections();
     errorSection.classList.remove('hidden');
+    
+    // Hide initial state
+    const initialState = document.getElementById('initialState');
+    if (initialState) {
+        initialState.classList.add('hidden');
+    }
+    
     document.getElementById('errorText').textContent = message;
 }
 
@@ -531,6 +1042,12 @@ function showError(message) {
 function showLoading() {
     hideAllSections();
     loadingSection.classList.remove('hidden');
+    
+    // Hide initial state
+    const initialState = document.getElementById('initialState');
+    if (initialState) {
+        initialState.classList.add('hidden');
+    }
     
     updateAgentStatus('researcher', 'waiting');
     updateAgentStatus('writer', 'waiting');
@@ -541,6 +1058,11 @@ function showLoading() {
 function hideAllSections() {
     loadingSection.classList.add('hidden');
     errorSection.classList.add('hidden');
+    resultSection.classList.add('hidden');
+    const initialState = document.getElementById('initialState');
+    if (initialState) {
+        initialState.classList.add('hidden');
+    }
 }
 
 // Disable form
@@ -573,6 +1095,17 @@ function resetForm() {
         clearInterval(pollInterval);
         pollInterval = null;
     }
+    
+    // Reset progress display
+    updateAgentStatus('researcher', 'waiting');
+    updateAgentStatus('writer', 'waiting');
+    updateAgentStatus('editor', 'waiting');
+    
+    if (progressBar) progressBar.style.width = '0%';
+    if (progressPercentage) progressPercentage.textContent = '0%';
+    if (currentAgentName) currentAgentName.textContent = 'Initializing...';
+    if (currentTaskDescription) currentTaskDescription.textContent = 'Preparing crew...';
+    if (progressMessageText) progressMessageText.textContent = 'Initializing crew and agents...';
 }
 
 // Retry button

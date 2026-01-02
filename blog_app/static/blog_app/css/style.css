@@ -563,6 +563,87 @@ body {
     background: #ffffff;
 }
 
+/* Initial State / Empty State */
+.initial-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 500px;
+    width: 100%;
+    padding: 60px 20px;
+}
+
+.initial-content {
+    text-align: center;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.fun-icon {
+    font-size: 80px;
+    margin-bottom: 24px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.initial-content h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+}
+
+.encouraging-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #64748b;
+    margin-bottom: 32px;
+}
+
+.fun-features {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 32px;
+}
+
+.feature-item {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;
+    transition: all 0.2s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #cbd5e1;
+}
+
+/* Result Section */
+.result-section {
+    width: 100%;
+    padding: 32px 0;
+}
+
+.result-section.hidden {
+    display: none;
+}
+
 .editor-content {
     max-width: 680px;
     margin: 0 auto;
@@ -575,6 +656,24 @@ body {
     margin-bottom: 24px;
     line-height: 1.3;
     letter-spacing: -0.5px;
+    outline: none;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 12px 16px;
+    transition: all 0.2s ease;
+    min-height: 48px;
+}
+
+.post-title:focus {
+    border-color: #3b82f6;
+    background: #f8fafc;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.post-title:empty:before {
+    content: attr(data-placeholder);
+    color: #94a3b8;
+    font-weight: 400;
 }
 
 .post-content {
@@ -582,6 +681,24 @@ body {
     line-height: 1.75;
     color: #334155;
     font-weight: 400;
+    outline: none;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 20px;
+    min-height: 400px;
+    transition: all 0.2s ease;
+}
+
+.post-content:focus {
+    border-color: #3b82f6;
+    background: #fafbfc;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.post-content:empty:before {
+    content: attr(data-placeholder);
+    color: #94a3b8;
+    font-style: italic;
 }
 
 .post-content h1,
@@ -613,12 +730,70 @@ body {
 
 .post-content ul,
 .post-content ol {
-    margin-left: 20px;
+    margin-left: 24px;
     margin-bottom: 16px;
+    padding-left: 0;
 }
 
 .post-content li {
     margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+/* Nested lists */
+.post-content ul ul,
+.post-content ol ol,
+.post-content ul ol,
+.post-content ol ul {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.post-content li > ul,
+.post-content li > ol {
+    margin-top: 8px;
+}
+
+/* Tables - GitHub style */
+.post-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 14px;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.post-content table thead {
+    background-color: #f6f8fa;
+}
+
+.post-content table th {
+    padding: 10px 13px;
+    text-align: left;
+    font-weight: 600;
+    color: #24292f;
+    border: 1px solid #d0d7de;
+    border-bottom: 2px solid #d0d7de;
+}
+
+.post-content table td {
+    padding: 10px 13px;
+    border: 1px solid #d0d7de;
+    color: #24292f;
+}
+
+.post-content table tbody tr {
+    background-color: #ffffff;
+}
+
+.post-content table tbody tr:nth-child(even) {
+    background-color: #f6f8fa;
+}
+
+.post-content table tbody tr:hover {
+    background-color: #f0f3f6;
 }
 
 .placeholder-text {
@@ -631,16 +806,122 @@ body {
 }
 
 /* Loading Section */
+/* Progress Bar Styles */
+.progress-container {
+    width: 100%;
+    margin: 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.progress-bar-wrapper {
+    flex: 1;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-percentage {
+    font-size: 14px;
+    font-weight: 600;
+    color: #3b82f6;
+    min-width: 45px;
+    text-align: right;
+}
+
+/* Current Status Display */
+.current-status {
+    margin: 24px 0;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+.current-agent,
+.current-task {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.current-agent:last-child,
+.current-task:last-child {
+    margin-bottom: 0;
+}
+
+.status-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#currentAgentName,
+#currentTaskDescription {
+    font-size: 14px;
+    font-weight: 500;
+    color: #0f172a;
+    flex: 1;
+}
+
+.progress-message {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+}
+
+#progressMessageText {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.5;
+    font-style: italic;
+}
+
 .loading-section {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 400px;
+    min-height: 600px;
+    width: 100%;
+    padding: 40px 20px;
 }
 
 .loading-content {
     text-align: center;
-    max-width: 400px;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
 }
 
 .spinner-large {
@@ -666,9 +947,12 @@ body {
 }
 
 .agent-status {
-    text-align: left;
-    max-width: 320px;
-    margin: 0 auto;
+    text-align: center;
+    max-width: 400px;
+    margin: 24px auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .status-item {

@@ -1,7 +1,9 @@
 import os
+import threading
+import time
 from dotenv import load_dotenv
 from crewai import Agent, Task, Crew, Process, LLM
-from ..models import Agent as AgentModel, Task as TaskModel, CrewConfig, OllamaSettings
+from ..models import Agent as AgentModel, Task as TaskModel, CrewConfig, OllamaSettings, BlogPost
 
 # Load environment variables
 load_dotenv()
@@ -65,6 +67,95 @@ def get_ollama_llm():
 # This prevents issues with Django models not being loaded yet
 
 
+class ProgressTracker:
+    """
+    Tracks and updates progress for blog post generation.
+    Updates BlogPost record with current agent, task, and progress information.
+    """
+    
+    def __init__(self, blog_post_id: int, total_tasks: int):
+        """
+        Initialize progress tracker.
+        
+        Args:
+            blog_post_id: ID of the BlogPost to update
+            total_tasks: Total number of tasks to execute
+        """
+        self.blog_post_id = blog_post_id
+        self.total_tasks = total_tasks
+        self.completed_tasks = 0
+        self.current_task_index = 0
+    
+    def update_progress(self, agent_name: str = '', task_description: str = '', 
+                       message: str = '', percentage: int = None):
+        """
+        Update progress in the database.
+        
+        Args:
+            agent_name: Name of currently active agent
+            task_description: Description of current task
+            message: Detailed progress message
+            percentage: Progress percentage (0-100). If None, calculated automatically.
+        """
+        try:
+            blog_post = BlogPost.objects.get(id=self.blog_post_id)
+            
+            if percentage is None:
+                # Calculate percentage based on completed tasks
+                if self.total_tasks > 0:
+                    percentage = int((self.completed_tasks / self.total_tasks) * 100)
+                else:
+                    percentage = 0
+            
+            blog_post.current_agent = agent_name
+            blog_post.current_task = task_description
+            blog_post.progress_message = message
+            blog_post.progress_percentage = min(100, max(0, percentage))
+            blog_post.save(update_fields=['current_agent', 'current_task', 'progress_message', 'progress_percentage'])
+        except BlogPost.DoesNotExist:
+            pass
+        except Exception as e:
+            print(f"Error updating progress: {e}")
+    
+    def task_started(self, agent_name: str, task_description: str, task_index: int = None):
+        """
+        Called when a task starts.
+        
+        Args:
+            agent_name: Name of the agent executing the task
+            task_description: Description of the task
+            task_index: Index of the task (0-based). If None, uses current_task_index.
+        """
+        if task_index is not None:
+            self.current_task_index = task_index
+        
+        message = f"{agent_name}: {task_description}"
+        percentage = int((self.current_task_index / self.total_tasks) * 100) if self.total_tasks > 0 else 0
+        self.update_progress(agent_name, task_description, message, percentage)
+    
+    def task_completed(self, agent_name: str, task_description: str):
+        """
+        Called when a task completes.
+        
+        Args:
+            agent_name: Name of the agent that completed the task
+            task_description: Description of the completed task
+        """
+        self.completed_tasks += 1
+        self.current_task_index += 1
+        message = f"{agent_name}: Completed {task_description}"
+        percentage = int((self.completed_tasks / self.total_tasks) * 100) if self.total_tasks > 0 else 0
+        self.update_progress(agent_name, task_description, message, percentage)
+    
+    def set_initializing(self, message: str = "Initializing crew..."):
+        """Set initializing state."""
+        self.update_progress('', '', message, 0)
+    
+    def set_finalizing(self, message: str = "Finalizing blog post..."):
+        """Set finalizing state."""
+        self.update_progress('', '', message, 95)
+
+
 def create_agent_from_model(agent_model: AgentModel, llm_instance=None):
     """
     Create a CrewAI Agent from a database Agent model.
@@ -117,7 +208,7 @@ def create_task_from_model(task_model: TaskModel, crew_agent, dependent_tasks=No
 
 def create_crew_from_config(crew_config: CrewConfig, topic: str = '', subtitle: str = '',
                            target_audience: list = None, key_points: str = '', 
-                           examples: str = '', tone: str = 'friendly'):
+                           examples: str = '', tone: str = 'friendly', length: str = 'medium'):
     """
     Create a CrewAI crew from a CrewConfig model.
     
@@ -206,6 +297,15 @@ def create_crew_from_config(crew_config: CrewConfig, topic: str = '', subtitle: 
         context_info += f"Examples: {examples}\n"
     context_info += f"Tone: {tone}\n"
     
+    # Add word count requirement based on length
+    length_requirements = {
+        'short': '300-500 words',
+        'medium': '500-1000 words',
+        'long': '1000+ words (aim for 1200-1500 words)'
+    }
+    word_count = length_requirements.get(length, '500-1000 words')
+    context_info += f"Target Length: {word_count}\n"
+    
     for task in crew_tasks:
         task.description = f"{context_info}\n\n{task.description}"
     
@@ -237,7 +337,7 @@ def get_default_crew_config():
 
 def create_blog_post_crew(topic: str, subtitle: str = '', target_audience: list = None, 
                           key_points: str = '', examples: str = '', tone: str = 'friendly',
-                          crew_config_id: int = None):
+                          length: str = 'medium', crew_config_id: int = None):
     """
     Create and configure a CrewAI crew for blog post generation.
     
@@ -267,13 +367,13 @@ def create_blog_post_crew(topic: str, subtitle: str = '', target_audience: list 
     
     # Fallback to hardcoded agents if no config exists
     if not crew_config:
-        return create_blog_post_crew_fallback(topic, subtitle, target_audience, key_points, examples, tone)
+        return create_blog_post_crew_fallback(topic, subtitle, target_audience, key_points, examples, tone, length)
     
-    return create_crew_from_config(crew_config, topic, subtitle, target_audience, key_points, examples, tone)
+    return create_crew_from_config(crew_config, topic, subtitle, target_audience, key_points, examples, tone, length)
 
 
 def create_blog_post_crew_fallback(topic: str, subtitle: str = '', target_audience: list = None, 
-                                   key_points: str = '', examples: str = '', tone: str = 'friendly'):
+                                   key_points: str = '', examples: str = '', tone: str = 'friendly', length: str = 'medium'):
     """
     Fallback to hardcoded agents if no database config exists.
     This maintains backward compatibility.
@@ -294,8 +394,8 @@ def create_blog_post_crew_fallback(topic: str, subtitle: str = '', target_audien
     
     # Get tasks with additional context
     research_task = get_research_task(researcher, topic, key_points, examples)
-    writing_task = get_writing_task(writer, research_task, topic, subtitle, target_audience, tone)
-    editing_task = get_editing_task(editor, writing_task)
+    writing_task = get_writing_task(writer, research_task, topic, subtitle, target_audience, tone, length)
+    editing_task = get_editing_task(editor, writing_task, length)
     
     # Create crew with explicit LLM to prevent OpenAI fallback
     crew = Crew(
@@ -311,7 +411,7 @@ def create_blog_post_crew_fallback(topic: str, subtitle: str = '', target_audien
 
 def generate_blog_post(topic: str, subtitle: str = '', target_audience: list = None,
                       key_points: str = '', examples: str = '', tone: str = 'friendly',
-                      crew_config_id: int = None) -> str:
+                      length: str = 'medium', crew_config_id: int = None, blog_post_id: int = None) -> str:
     """
     Generate a blog post for the given topic using CrewAI agents.
     
@@ -323,20 +423,111 @@ def generate_blog_post(topic: str, subtitle: str = '', target_audience: list = N
         examples: Specific examples to include
         tone: Writing tone
         crew_config_id: Optional crew configuration ID
+        blog_post_id: Optional BlogPost ID for progress tracking
         
     Returns:
         Generated blog post content
     """
-    crew = create_blog_post_crew(topic, subtitle, target_audience, key_points, examples, tone, crew_config_id)
-    result = crew.kickoff()
+    # Initialize progress tracker if blog_post_id is provided
+    progress_tracker = None
+    if blog_post_id:
+        # We'll count tasks after crew creation
+        progress_tracker = ProgressTracker(blog_post_id, 0)  # Will update total_tasks later
+        progress_tracker.set_initializing("Initializing crew and agents...")
+    
+    # Create crew
+    if progress_tracker:
+        progress_tracker.update_progress('', '', 'Creating crew configuration...', 5)
+    
+    crew = create_blog_post_crew(topic, subtitle, target_audience, key_points, examples, tone, length, crew_config_id)
+    
+    # Count total tasks for progress tracking
+    total_tasks = len(crew.tasks) if hasattr(crew, 'tasks') and crew.tasks else 3  # Default to 3 if unknown
+    if progress_tracker:
+        progress_tracker.total_tasks = total_tasks
+        progress_tracker.update_progress('', '', f'Crew ready with {total_tasks} tasks. Starting execution...', 10)
+    
+    # Execute crew with progress tracking using threading
+    # Use a background thread to simulate progress updates during execution
+    execution_done = threading.Event()
+    execution_error = [None]
+    result = None  # Initialize result variable
+    
+    def execute_crew():
+        """Execute crew in a separate thread."""
+        nonlocal result
+        try:
+            result = crew.kickoff()
+        except Exception as e:
+            execution_error[0] = e
+        finally:
+            execution_done.set()
+    
+    # Start execution in background thread
+    exec_thread = threading.Thread(target=execute_crew)
+    exec_thread.start()
+    
+    # Update progress during execution
+    if progress_tracker and hasattr(crew, 'tasks') and crew.tasks:
+        task_list = list(crew.tasks)
+        base_percentage = 15
+        percentage_per_task = (85 - base_percentage) / total_tasks if total_tasks > 0 else 0
+        
+        task_index = 0
+        while not execution_done.is_set() and task_index < len(task_list):
+            # Update progress for current task
+            current_task = task_list[task_index]
+            agent_name = current_task.agent.role if hasattr(current_task, 'agent') and hasattr(current_task.agent, 'role') else 'Agent'
+            task_desc = current_task.description[:150] + '...' if len(current_task.description) > 150 else current_task.description
+            
+            # Calculate progress percentage
+            current_progress = base_percentage + (task_index * percentage_per_task)
+            progress_tracker.task_started(agent_name, task_desc, task_index)
+            progress_tracker.update_progress(agent_name, task_desc, 
+                                           f"{agent_name} is working on: {task_desc}", 
+                                           int(current_progress))
+            
+            # Wait a bit before moving to next task (simulate task progression)
+            # Check if execution is done every 2 seconds
+            for _ in range(10):  # Check 10 times (20 seconds max per task)
+                if execution_done.wait(timeout=2):
+                    break
+                # Gradually increase progress within task
+                if task_index < len(task_list) - 1:
+                    sub_progress = current_progress + (percentage_per_task * 0.1 * (_ + 1))
+                    progress_tracker.update_progress(agent_name, task_desc,
+                                                   f"{agent_name} is working on: {task_desc}",
+                                                   int(min(sub_progress, base_percentage + ((task_index + 1) * percentage_per_task))))
+            
+            # Mark task as completed
+            progress_tracker.task_completed(agent_name, task_desc)
+            task_index += 1
+    
+    # Wait for execution to complete
+    exec_thread.join()
+    
+    if execution_error[0]:
+        raise execution_error[0]
+    
+    # After kickoff completes, we know all tasks are done
+    if progress_tracker:
+        # Mark all tasks as completed
+        progress_tracker.completed_tasks = total_tasks
+        progress_tracker.current_task_index = total_tasks
+        progress_tracker.set_finalizing("Processing final output...")
     
     # Extract the final blog post from the result
     if hasattr(result, 'raw'):
-        return result.raw
+        content = result.raw
     elif hasattr(result, 'output'):
-        return result.output
+        content = result.output
     elif isinstance(result, str):
-        return result
+        content = result
     else:
         # Fallback: convert to string
-        return str(result)
+        content = str(result)
+    
+    if progress_tracker:
+        progress_tracker.update_progress('', '', 'Blog post generation completed!', 100)
+    
+    return content

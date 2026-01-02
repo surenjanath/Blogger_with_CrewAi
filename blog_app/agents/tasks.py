@@ -39,7 +39,7 @@ def get_research_task(researcher_agent, topic: str, key_points: str = '', exampl
 
 
 def get_writing_task(writer_agent, research_task: Task, topic: str = '', subtitle: str = '',
-                    target_audience: list = None, tone: str = 'friendly'):
+                    target_audience: list = None, tone: str = 'friendly', length: str = 'medium'):
     """
     Create a writing task for the writer agent.
     
@@ -85,7 +85,14 @@ def get_writing_task(writer_agent, research_task: Task, topic: str = '', subtitl
         }
         description += f"\n\nTone: {tone_descriptions.get(tone, 'Use an appropriate tone')}"
     
-    description += "\n\nMake sure the post is at least 500 words and flows naturally from start to finish."
+    # Add word count requirement based on length
+    length_requirements = {
+        'short': '300-500 words',
+        'medium': '500-1000 words',
+        'long': '1000+ words (aim for 1200-1500 words)'
+    }
+    word_count = length_requirements.get(length, '500-1000 words')
+    description += f"\n\nIMPORTANT: The blog post must be exactly {word_count}. Make sure you write the complete content within this word count range and flows naturally from start to finish."
     
     return Task(
         description=description,
@@ -95,17 +102,26 @@ def get_writing_task(writer_agent, research_task: Task, topic: str = '', subtitl
     )
 
 
-def get_editing_task(editor_agent, writing_task: Task):
+def get_editing_task(editor_agent, writing_task: Task, length: str = 'medium'):
     """
     Create an editing task for the editor agent.
     
     Args:
         editor_agent: The editor agent instance
         writing_task: The writing task that provides the blog post to edit
+        length: Target length of the blog post
         
     Returns:
         Configured Task instance
     """
+    # Add word count requirement based on length
+    length_requirements = {
+        'short': '300-500 words',
+        'medium': '500-1000 words',
+        'long': '1000+ words (aim for 1200-1500 words)'
+    }
+    word_count = length_requirements.get(length, '500-1000 words')
+    
     return Task(
         description=f"""Review and polish the blog post from the previous task.
         
@@ -116,10 +132,11 @@ def get_editing_task(editor_agent, writing_task: Task):
         - Make sure the content is engaging and well-organized
         - Fix any inconsistencies or errors
         - Ensure the post is publication-ready
+        - IMPORTANT: Verify the blog post is within the target length of {word_count}. If it's too short, expand it. If it's too long, condense it while maintaining quality.
         
         Make improvements where needed, but maintain the original style and voice of the writer.""",
         agent=editor_agent,
-        expected_output="A polished, publication-ready blog post that is clear, error-free, and engaging.",
+        expected_output=f"A polished, publication-ready blog post that is clear, error-free, engaging, and exactly {word_count}.",
         context=[writing_task],
     )
 

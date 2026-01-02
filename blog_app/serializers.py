@@ -8,8 +8,8 @@ class BlogPostSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = BlogPost
-        fields = ['id', 'topic', 'subtitle', 'target_audience', 'key_points', 'examples', 'tone', 'content', 'status', 'is_saved', 'title', 'word_count', 'reading_time', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at', 'word_count', 'reading_time']
+        fields = ['id', 'topic', 'subtitle', 'target_audience', 'key_points', 'examples', 'tone', 'content', 'status', 'is_saved', 'title', 'word_count', 'reading_time', 'current_agent', 'current_task', 'progress_message', 'progress_percentage', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'word_count', 'reading_time', 'current_agent', 'current_task', 'progress_message', 'progress_percentage']
 
 
 class BlogPostCreateSerializer(serializers.Serializer):
@@ -23,6 +23,7 @@ class BlogPostCreateSerializer(serializers.Serializer):
     key_points = serializers.CharField(max_length=1000, required=False, allow_blank=True)
     examples = serializers.CharField(max_length=1000, required=False, allow_blank=True)
     tone = serializers.ChoiceField(choices=BlogPost.TONE_CHOICES, required=False, default='friendly')
+    length = serializers.ChoiceField(choices=[('short', 'Short'), ('medium', 'Medium'), ('long', 'Long')], required=False, default='medium')
     crew_config_id = serializers.IntegerField(required=False, allow_null=True)
 
 

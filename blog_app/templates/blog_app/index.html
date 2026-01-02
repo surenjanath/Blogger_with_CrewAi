@@ -210,29 +210,67 @@
                     <div class="loading-content">
                         <div class="spinner-large"></div>
                         <h3>Generating your blog post...</h3>
+                        
+                        <!-- Progress Bar -->
+                        <div class="progress-container">
+                            <div class="progress-bar-wrapper">
+                                <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-percentage" id="progressPercentage">0%</div>
+                        </div>
+                        
+                        <!-- Current Status -->
+                        <div class="current-status">
+                            <div class="current-agent" id="currentAgentDisplay">
+                                <span class="status-label">Current Agent:</span>
+                                <span id="currentAgentName">Initializing...</span>
+                            </div>
+                            <div class="current-task" id="currentTaskDisplay">
+                                <span class="status-label">Task:</span>
+                                <span id="currentTaskDescription">Preparing crew...</span>
+                            </div>
+                            <div class="progress-message" id="progressMessageDisplay">
+                                <span id="progressMessageText">Initializing crew and agents...</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Agent Status Indicators -->
                         <div class="agent-status">
                             <div class="status-item">
                                 <span class="status-icon">🔍</span>
-                                <span id="researcherStatus">Researching...</span>
+                                <span id="researcherStatus">Waiting...</span>
                             </div>
                             <div class="status-item">
                                 <span class="status-icon">✍️</span>
-                                <span id="writerStatus">Writing...</span>
+                                <span id="writerStatus">Waiting...</span>
                             </div>
                             <div class="status-item">
                                 <span class="status-icon">📝</span>
-                                <span id="editorStatus">Editing...</span>
+                                <span id="editorStatus">Waiting...</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Initial State / Empty State -->
+                <div id="initialState" class="initial-state">
+                    <div class="initial-content">
+                        <div class="fun-icon">🚀</div>
+                        <h2>Ready to Create Something Amazing?</h2>
+                        <p class="encouraging-text">Fill in your topic and preferences above, then hit that "Generate Blog Post" button. Our AI agents are ready to craft your perfect blog post!</p>
+                        <div class="fun-features">
+                            <div class="feature-item">✨ AI-Powered Writing</div>
+                            <div class="feature-item">📝 Professional Quality</div>
+                            <div class="feature-item">⚡ Fast Generation</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Result Display -->
-                <div id="resultSection" class="result-section">
+                <div id="resultSection" class="result-section hidden">
                     <div class="editor-content">
-                        <h1 id="postTitle" class="post-title">Your Blog Post Will Appear Here</h1>
-                        <div id="postContent" class="post-content">
-                            <p class="placeholder-text">Enter your topic and preferences, then click "Generate Blog Post" to create your content.</p>
+                        <div id="postTitle" class="post-title" contenteditable="true" spellcheck="true" data-placeholder="Your Blog Post Title"></div>
+                        <div id="postContent" class="post-content" contenteditable="true" spellcheck="true" data-placeholder="Enter your topic and preferences, then click 'Generate Blog Post' to create your content.">
                         </div>
                     </div>
                 </div>
@@ -258,8 +296,9 @@
                 <button class="modal-close" id="closeExportModal">×</button>
             </div>
             <div class="modal-body">
-                <button class="export-option" id="exportMarkdown">📄 Export as Markdown</button>
-                <button class="export-option" id="exportText">📝 Export as Text</button>
+                <button class="export-option" id="exportPDF">📄 Export as PDF</button>
+                <button class="export-option" id="exportMarkdown">📝 Export as Markdown</button>
+                <button class="export-option" id="exportText">📄 Export as Text</button>
                 <button class="export-option" id="exportHTML">🌐 Export as HTML</button>
             </div>
         </div>

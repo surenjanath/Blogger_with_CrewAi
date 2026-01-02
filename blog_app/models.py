@@ -126,6 +126,11 @@ class BlogPost(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     is_saved = models.BooleanField(default=False)
     title = models.CharField(max_length=500, blank=True)
+    # Progress tracking fields
+    current_agent = models.CharField(max_length=100, blank=True, default='')
+    current_task = models.CharField(max_length=200, blank=True, default='')
+    progress_message = models.TextField(blank=True, default='')
+    progress_percentage = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
