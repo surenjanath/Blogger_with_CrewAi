@@ -2,7 +2,7 @@
 
 A powerful Django web application that leverages CrewAI's multi-agent system and Ollama's local LLM capabilities to automatically generate high-quality blog posts. The system employs specialized AI agents working collaboratively to research, write, and edit content with complete privacy and no API costs.
 
-Demo Link : [https://ollama.ai](https://www.youtube.com/watch?v=ZvI89Th9_-g)
+Demo Link : [https://www.youtube.com/watch?v=ZvI89Th9_-g](https://www.youtube.com/watch?v=ZvI89Th9_-g)
 
 ## ✨ Features
 
