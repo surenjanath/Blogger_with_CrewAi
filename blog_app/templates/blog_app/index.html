@@ -447,27 +447,222 @@
 
     <!-- Templates Modal -->
     <div id="templatesModal" class="modal hidden">
-        <div class="modal-content">
+        <div class="modal-content templates-modal">
             <div class="modal-header">
                 <h3>Blog Post Templates</h3>
                 <button class="modal-close" id="closeTemplatesModal">×</button>
             </div>
             <div class="modal-body">
-                <div class="templates-grid">
-                    <div class="template-card" data-template="tech">
-                        <h4>Tech Blog</h4>
-                        <p>Latest technology trends, innovations, and best practices</p>
-                        <button class="btn-primary small use-template" data-template="tech">Use Template</button>
-                    </div>
-                    <div class="template-card" data-template="marketing">
-                        <h4>Marketing</h4>
-                        <p>Digital marketing strategies, SEO, content marketing</p>
+                <!-- Template Categories -->
+                <div class="template-categories">
+                    <button class="category-btn active" data-category="all">All</button>
+                    <button class="category-btn" data-category="business">Business</button>
+                    <button class="category-btn" data-category="tech">Technology</button>
+                    <button class="category-btn" data-category="creative">Creative</button>
+                    <button class="category-btn" data-category="education">Education</button>
+                    <button class="category-btn" data-category="lifestyle">Lifestyle</button>
+                </div>
+                
+                <!-- Templates Grid -->
+                <div class="templates-grid" id="templatesGrid">
+                    <!-- Business Templates -->
+                    <div class="template-card" data-template="marketing" data-category="business">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                            📈
+                        </div>
+                        <h4>Digital Marketing</h4>
+                        <p>SEO strategies, content marketing, social media trends, and digital advertising</p>
+                        <div class="template-tags">
+                            <span class="template-tag">Marketing</span>
+                            <span class="template-tag">SEO</span>
+                        </div>
                         <button class="btn-primary small use-template" data-template="marketing">Use Template</button>
                     </div>
-                    <div class="template-card" data-template="design">
-                        <h4>Design</h4>
-                        <p>UI/UX design principles, trends, tools, and best practices</p>
+                    
+                    <div class="template-card" data-template="business" data-category="business">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            💼
+                        </div>
+                        <h4>Business Strategy</h4>
+                        <p>Business growth, entrepreneurship, leadership, and management insights</p>
+                        <div class="template-tags">
+                            <span class="template-tag">Business</span>
+                            <span class="template-tag">Strategy</span>
+                        </div>
+                        <button class="btn-primary small use-template" data-template="business">Use Template</button>
+                    </div>
+                    
+                    <div class="template-card" data-template="startup" data-category="business">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            🚀
+                        </div>
+                        <h4>Startup Guide</h4>
+                        <p>Startup advice, funding, product development, and scaling strategies</p>
+                        <div class="template-tags">
+                            <span class="template-tag">Startup</span>
+                            <span class="template-tag">Entrepreneurship</span>
+                        </div>
+                        <button class="btn-primary small use-template" data-template="startup">Use Template</button>
+                    </div>
+                    
+                    <!-- Technology Templates -->
+                    <div class="template-card" data-template="tech" data-category="tech">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
+                            💻
+                        </div>
+                        <h4>Tech Blog</h4>
+                        <p>Latest technology trends, innovations, software development, and best practices</p>
+                        <div class="template-tags">
+                            <span class="template-tag">Technology</span>
+                            <span class="template-tag">Development</span>
+                        </div>
+                        <button class="btn-primary small use-template" data-template="tech">Use Template</button>
+                    </div>
+                    
+                    <div class="template-card" data-template="ai" data-category="tech">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                            🤖
+                        </div>
+                        <h4>AI & Machine Learning</h4>
+                        <p>Artificial intelligence, machine learning, neural networks, and AI applications</p>
+                        <div class="template-tags">
+                            <span class="template-tag">AI</span>
+                            <span class="template-tag">ML</span>
+                        </div>
+                        <button class="btn-primary small use-template" data-template="ai">Use Template</button>
+                    </div>
+                    
+                    <div class="template-card" data-template="programming" data-category="tech">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">
+                            ⌨️
+                        </div>
+                        <h4>Programming Tutorial</h4>
+                        <p>Coding tutorials, programming languages, frameworks, and development guides</p>
+                        <div class="template-tags">
+                            <span class="template-tag">Programming</span>
+                            <span class="template-tag">Tutorial</span>
+                        </div>
+                        <button class="btn-primary small use-template" data-template="programming">Use Template</button>
+                    </div>
+                    
+                    <!-- Creative Templates -->
+                    <div class="template-card" data-template="design" data-category="creative">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            🎨
+                        </div>
+                        <h4>Design & UX</h4>
+                        <p>UI/UX design principles, trends, tools, design systems, and best practices</p>
+                        <div class="template-tags">
+                            <span class="template-tag">Design</span>
+                            <span class="template-tag">UX</span>
+                        </div>
                         <button class="btn-primary small use-template" data-template="design">Use Template</button>
+                    </div>
+                    
+                    <div class="template-card" data-template="writing" data-category="creative">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            ✍️
+                        </div>
+                        <h4>Creative Writing</h4>
+                        <p>Creative writing tips, storytelling, narrative techniques, and writing inspiration</p>
+                        <div class="template-tags">
+                            <span class="template-tag">Writing</span>
+                            <span class="template-tag">Creative</span>
+                        </div>
+                        <button class="btn-primary small use-template" data-template="writing">Use Template</button>
+                    </div>
+                    
+                    <div class="template-card" data-template="photography" data-category="creative">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                            📸
+                        </div>
+                        <h4>Photography</h4>
+                        <p>Photography tips, camera techniques, composition, editing, and gear reviews</p>
+                        <div class="template-tags">
+                            <span class="template-tag">Photography</span>
+                            <span class="template-tag">Visual</span>
+                        </div>
+                        <button class="btn-primary small use-template" data-template="photography">Use Template</button>
+                    </div>
+                    
+                    <!-- Education Templates -->
+                    <div class="template-card" data-template="tutorial" data-category="education">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
+                            📚
+                        </div>
+                        <h4>How-To Guide</h4>
+                        <p>Step-by-step tutorials, guides, instructions, and educational content</p>
+                        <div class="template-tags">
+                            <span class="template-tag">Tutorial</span>
+                            <span class="template-tag">Guide</span>
+                        </div>
+                        <button class="btn-primary small use-template" data-template="tutorial">Use Template</button>
+                    </div>
+                    
+                    <div class="template-card" data-template="review" data-category="education">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            ⭐
+                        </div>
+                        <h4>Product Review</h4>
+                        <p>Product reviews, comparisons, pros and cons, and buying guides</p>
+                        <div class="template-tags">
+                            <span class="template-tag">Review</span>
+                            <span class="template-tag">Product</span>
+                        </div>
+                        <button class="btn-primary small use-template" data-template="review">Use Template</button>
+                    </div>
+                    
+                    <div class="template-card" data-template="news" data-category="education">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                            📰
+                        </div>
+                        <h4>News & Analysis</h4>
+                        <p>Current events, news analysis, industry updates, and trend reports</p>
+                        <div class="template-tags">
+                            <span class="template-tag">News</span>
+                            <span class="template-tag">Analysis</span>
+                        </div>
+                        <button class="btn-primary small use-template" data-template="news">Use Template</button>
+                    </div>
+                    
+                    <!-- Lifestyle Templates -->
+                    <div class="template-card" data-template="health" data-category="lifestyle">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            💪
+                        </div>
+                        <h4>Health & Wellness</h4>
+                        <p>Health tips, fitness, nutrition, mental wellness, and healthy living</p>
+                        <div class="template-tags">
+                            <span class="template-tag">Health</span>
+                            <span class="template-tag">Wellness</span>
+                        </div>
+                        <button class="btn-primary small use-template" data-template="health">Use Template</button>
+                    </div>
+                    
+                    <div class="template-card" data-template="travel" data-category="lifestyle">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                            ✈️
+                        </div>
+                        <h4>Travel Guide</h4>
+                        <p>Travel destinations, tips, itineraries, and travel experiences</p>
+                        <div class="template-tags">
+                            <span class="template-tag">Travel</span>
+                            <span class="template-tag">Guide</span>
+                        </div>
+                        <button class="btn-primary small use-template" data-template="travel">Use Template</button>
+                    </div>
+                    
+                    <div class="template-card" data-template="food" data-category="lifestyle">
+                        <div class="template-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            🍕
+                        </div>
+                        <h4>Food & Recipe</h4>
+                        <p>Recipes, cooking tips, restaurant reviews, and culinary experiences</p>
+                        <div class="template-tags">
+                            <span class="template-tag">Food</span>
+                            <span class="template-tag">Recipe</span>
+                        </div>
+                        <button class="btn-primary small use-template" data-template="food">Use Template</button>
                     </div>
                 </div>
             </div>
@@ -476,10 +671,126 @@
 
     <script src="{% static 'blog_app/js/main.js' %}"></script>
     <script>
+        // Comprehensive Templates System - matches allTemplates in main.js
+        const templates = window.allTemplates || {
+            // Business Templates
+            marketing: {
+                keyPoints: 'Digital marketing strategies, SEO optimization, content marketing, social media trends, email campaigns, and conversion optimization',
+                examples: 'Content marketing campaigns, SEO best practices, social media strategies, email marketing automation, PPC advertising',
+                tone: 'professional',
+                length: 'medium',
+                audience: ['Marketers', 'Business Owners', 'Content Creators', 'Digital Marketing Professionals']
+            },
+            business: {
+                keyPoints: 'Business growth strategies, entrepreneurship, leadership principles, management insights, and organizational development',
+                examples: 'Successful startups, business case studies, leadership examples, management frameworks, growth strategies',
+                tone: 'professional',
+                length: 'medium',
+                audience: ['Entrepreneurs', 'Business Leaders', 'Managers', 'Business Students']
+            },
+            startup: {
+                keyPoints: 'Startup advice, funding strategies, product development, scaling businesses, and entrepreneurial insights',
+                examples: 'Successful startup stories, funding rounds, product launches, scaling challenges, founder experiences',
+                tone: 'friendly',
+                length: 'medium',
+                audience: ['Startup Founders', 'Entrepreneurs', 'Investors', 'Aspiring Business Owners']
+            },
+            // Technology Templates
+            tech: {
+                keyPoints: 'Latest technology trends, software development, innovations, best practices, and tech industry insights',
+                examples: 'AI developments, cloud computing, cybersecurity, software frameworks, programming languages, tech tools',
+                tone: 'informative',
+                length: 'medium',
+                audience: ['Developers', 'Tech Enthusiasts', 'IT Professionals', 'Software Engineers']
+            },
+            ai: {
+                keyPoints: 'Artificial intelligence, machine learning, neural networks, AI applications, and future of AI technology',
+                examples: 'ChatGPT, neural networks, deep learning, AI tools, machine learning models, AI ethics',
+                tone: 'informative',
+                length: 'long',
+                audience: ['AI Researchers', 'Data Scientists', 'Tech Enthusiasts', 'Developers']
+            },
+            programming: {
+                keyPoints: 'Programming tutorials, coding best practices, software development, frameworks, and development workflows',
+                examples: 'Code examples, programming languages, development tools, coding patterns, software architecture',
+                tone: 'informative',
+                length: 'medium',
+                audience: ['Developers', 'Programmers', 'Software Engineers', 'Coding Students']
+            },
+            // Creative Templates
+            design: {
+                keyPoints: 'UI/UX design principles, design trends, tools, design systems, user experience, and visual design',
+                examples: 'Design systems, user experience case studies, design tools, visual design trends, interface examples',
+                tone: 'friendly',
+                length: 'medium',
+                audience: ['Designers', 'UI/UX Professionals', 'Creatives', 'Product Designers']
+            },
+            writing: {
+                keyPoints: 'Creative writing tips, storytelling techniques, narrative structure, writing inspiration, and author advice',
+                examples: 'Writing examples, storytelling techniques, narrative structures, writing prompts, author interviews',
+                tone: 'friendly',
+                length: 'medium',
+                audience: ['Writers', 'Authors', 'Content Creators', 'Creative Professionals']
+            },
+            photography: {
+                keyPoints: 'Photography tips, camera techniques, composition rules, editing workflows, and gear recommendations',
+                examples: 'Photo examples, camera settings, composition techniques, editing software, photography gear',
+                tone: 'friendly',
+                length: 'medium',
+                audience: ['Photographers', 'Visual Artists', 'Content Creators', 'Hobbyists']
+            },
+            // Education Templates
+            tutorial: {
+                keyPoints: 'Step-by-step instructions, how-to guides, tutorials, educational content, and learning resources',
+                examples: 'Tutorial examples, step-by-step processes, instructional content, learning resources, practical guides',
+                tone: 'informative',
+                length: 'long',
+                audience: ['Learners', 'Students', 'Educators', 'Tutorial Seekers']
+            },
+            review: {
+                keyPoints: 'Product reviews, comparisons, pros and cons, buying guides, and detailed analysis',
+                examples: 'Product features, user experiences, comparisons, pros and cons, recommendations',
+                tone: 'informative',
+                length: 'medium',
+                audience: ['Consumers', 'Shoppers', 'Tech Enthusiasts', 'Review Readers']
+            },
+            news: {
+                keyPoints: 'Current events, news analysis, industry updates, trend reports, and breaking news coverage',
+                examples: 'Recent events, industry news, trend analysis, current affairs, news updates',
+                tone: 'professional',
+                length: 'medium',
+                audience: ['News Readers', 'Industry Professionals', 'General Public', 'Analysts']
+            },
+            // Lifestyle Templates
+            health: {
+                keyPoints: 'Health tips, fitness advice, nutrition guidance, mental wellness, and healthy living strategies',
+                examples: 'Fitness routines, healthy recipes, wellness practices, mental health tips, nutrition advice',
+                tone: 'friendly',
+                length: 'medium',
+                audience: ['Health Enthusiasts', 'Fitness Seekers', 'Wellness Advocates', 'General Public']
+            },
+            travel: {
+                keyPoints: 'Travel destinations, travel tips, itineraries, travel experiences, and destination guides',
+                examples: 'Travel destinations, itinerary examples, travel tips, destination reviews, travel experiences',
+                tone: 'friendly',
+                length: 'medium',
+                audience: ['Travelers', 'Adventure Seekers', 'Tourists', 'Travel Enthusiasts']
+            },
+            food: {
+                keyPoints: 'Recipes, cooking tips, restaurant reviews, culinary experiences, and food culture',
+                examples: 'Recipe examples, cooking techniques, restaurant experiences, food trends, culinary tips',
+                tone: 'friendly',
+                length: 'medium',
+                audience: ['Food Lovers', 'Home Cooks', 'Foodies', 'Culinary Enthusiasts']
+            }
+        };
+
         // Templates functionality
         const templatesBtn = document.getElementById('templatesBtn');
         const templatesModal = document.getElementById('templatesModal');
         const closeTemplatesModal = document.getElementById('closeTemplatesModal');
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        const templateCards = document.querySelectorAll('.template-card');
 
         templatesBtn?.addEventListener('click', () => {
             templatesModal.classList.remove('hidden');
@@ -495,43 +806,82 @@
             }
         });
 
+        // Category filtering
+        categoryButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const category = btn.dataset.category;
+                
+                // Update active state
+                categoryButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Filter templates
+                templateCards.forEach(card => {
+                    const cardCategory = card.dataset.category;
+                    if (category === 'all' || cardCategory === category) {
+                        card.classList.remove('hidden');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+            });
+        });
+
         // Use template
         document.querySelectorAll('.use-template').forEach(btn => {
             btn.addEventListener('click', () => {
                 const template = btn.dataset.template;
-                const templates = {
-                    tech: {
-                        keyPoints: 'Latest technology trends, innovations, and best practices',
-                        examples: 'AI, cloud computing, cybersecurity, software development',
-                        tone: 'informative',
-                        audience: ['Developers', 'Tech Enthusiasts', 'IT Professionals']
-                    },
-                    marketing: {
-                        keyPoints: 'Digital marketing strategies, SEO, content marketing, social media',
-                        examples: 'Content marketing, email campaigns, social media trends',
-                        tone: 'professional',
-                        audience: ['Marketers', 'Business Owners', 'Content Creators']
-                    },
-                    design: {
-                        keyPoints: 'UI/UX design principles, trends, tools, and best practices',
-                        examples: 'Design systems, user experience, visual design trends',
-                        tone: 'friendly',
-                        audience: ['Designers', 'UI/UX Professionals', 'Creatives']
-                    }
-                };
-                
                 const templateData = templates[template];
-                if (templateData && typeof keyPoints !== 'undefined') {
-                    keyPoints.value = templateData.keyPoints;
-                    examples.value = templateData.examples;
-                    tone.value = templateData.tone;
-                    templateData.audience.forEach(tag => {
-                        if (typeof addTag !== 'undefined') addTag(tag);
-                    });
-                    updateTopicPreview();
-                    keyPointsCount.textContent = keyPoints.value.length;
-                    examplesCount.textContent = examples.value.length;
+                
+                if (templateData) {
+                    // Use applyTemplate function if available, otherwise apply directly
+                    if (typeof applyTemplate !== 'undefined') {
+                        applyTemplate(templateData);
+                    } else if (typeof keyPoints !== 'undefined') {
+                        // Fallback: apply directly
+                        keyPoints.value = templateData.keyPoints || '';
+                        examples.value = templateData.examples || '';
+                        tone.value = templateData.tone || 'friendly';
+                        
+                        if (templateData.length && typeof length !== 'undefined') {
+                            length.value = templateData.length;
+                        }
+                        
+                        if (typeof audienceTagList !== 'undefined') {
+                            audienceTagList = [];
+                            renderTags();
+                        }
+                        
+                        if (templateData.audience && typeof addTag !== 'undefined') {
+                            templateData.audience.forEach(tag => {
+                                addTag(tag);
+                            });
+                        }
+                        
+                        if (typeof updateTopicPreview !== 'undefined') {
+                            updateTopicPreview();
+                        }
+                        if (typeof keyPointsCount !== 'undefined') {
+                            keyPointsCount.textContent = keyPoints.value.length;
+                        }
+                        if (typeof examplesCount !== 'undefined') {
+                            examplesCount.textContent = examples.value.length;
+                        }
+                    }
+                    
+                    // Close modal
                     templatesModal.classList.add('hidden');
+                    
+                    // Show success message
+                    if (typeof templateBtn !== 'undefined') {
+                        const originalText = templateBtn.textContent;
+                        templateBtn.textContent = '✓ Template Applied';
+                        templateBtn.style.background = '#10b981';
+                        setTimeout(() => {
+                            templateBtn.textContent = originalText;
+                            templateBtn.style.background = '';
+                        }, 2000);
+                    }
                 }
             });
         });

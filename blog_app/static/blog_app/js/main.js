@@ -597,42 +597,125 @@ clearBtn.addEventListener('click', () => {
     }
 });
 
-// Template functionality
+// Comprehensive Templates System (same as in index.html)
+const allTemplates = {
+    // Business Templates
+    marketing: {
+        keyPoints: 'Digital marketing strategies, SEO optimization, content marketing, social media trends, email campaigns, and conversion optimization',
+        examples: 'Content marketing campaigns, SEO best practices, social media strategies, email marketing automation, PPC advertising',
+        tone: 'professional',
+        length: 'medium',
+        audience: ['Marketers', 'Business Owners', 'Content Creators', 'Digital Marketing Professionals']
+    },
+    business: {
+        keyPoints: 'Business growth strategies, entrepreneurship, leadership principles, management insights, and organizational development',
+        examples: 'Successful startups, business case studies, leadership examples, management frameworks, growth strategies',
+        tone: 'professional',
+        length: 'medium',
+        audience: ['Entrepreneurs', 'Business Leaders', 'Managers', 'Business Students']
+    },
+    startup: {
+        keyPoints: 'Startup advice, funding strategies, product development, scaling businesses, and entrepreneurial insights',
+        examples: 'Successful startup stories, funding rounds, product launches, scaling challenges, founder experiences',
+        tone: 'friendly',
+        length: 'medium',
+        audience: ['Startup Founders', 'Entrepreneurs', 'Investors', 'Aspiring Business Owners']
+    },
+    // Technology Templates
+    tech: {
+        keyPoints: 'Latest technology trends, software development, innovations, best practices, and tech industry insights',
+        examples: 'AI developments, cloud computing, cybersecurity, software frameworks, programming languages, tech tools',
+        tone: 'informative',
+        length: 'medium',
+        audience: ['Developers', 'Tech Enthusiasts', 'IT Professionals', 'Software Engineers']
+    },
+    ai: {
+        keyPoints: 'Artificial intelligence, machine learning, neural networks, AI applications, and future of AI technology',
+        examples: 'ChatGPT, neural networks, deep learning, AI tools, machine learning models, AI ethics',
+        tone: 'informative',
+        length: 'long',
+        audience: ['AI Researchers', 'Data Scientists', 'Tech Enthusiasts', 'Developers']
+    },
+    programming: {
+        keyPoints: 'Programming tutorials, coding best practices, software development, frameworks, and development workflows',
+        examples: 'Code examples, programming languages, development tools, coding patterns, software architecture',
+        tone: 'informative',
+        length: 'medium',
+        audience: ['Developers', 'Programmers', 'Software Engineers', 'Coding Students']
+    },
+    // Creative Templates
+    design: {
+        keyPoints: 'UI/UX design principles, design trends, tools, design systems, user experience, and visual design',
+        examples: 'Design systems, user experience case studies, design tools, visual design trends, interface examples',
+        tone: 'friendly',
+        length: 'medium',
+        audience: ['Designers', 'UI/UX Professionals', 'Creatives', 'Product Designers']
+    },
+    writing: {
+        keyPoints: 'Creative writing tips, storytelling techniques, narrative structure, writing inspiration, and author advice',
+        examples: 'Writing examples, storytelling techniques, narrative structures, writing prompts, author interviews',
+        tone: 'friendly',
+        length: 'medium',
+        audience: ['Writers', 'Authors', 'Content Creators', 'Creative Professionals']
+    },
+    photography: {
+        keyPoints: 'Photography tips, camera techniques, composition rules, editing workflows, and gear recommendations',
+        examples: 'Photo examples, camera settings, composition techniques, editing software, photography gear',
+        tone: 'friendly',
+        length: 'medium',
+        audience: ['Photographers', 'Visual Artists', 'Content Creators', 'Hobbyists']
+    },
+    // Education Templates
+    tutorial: {
+        keyPoints: 'Step-by-step instructions, how-to guides, tutorials, educational content, and learning resources',
+        examples: 'Tutorial examples, step-by-step processes, instructional content, learning resources, practical guides',
+        tone: 'informative',
+        length: 'long',
+        audience: ['Learners', 'Students', 'Educators', 'Tutorial Seekers']
+    },
+    review: {
+        keyPoints: 'Product reviews, comparisons, pros and cons, buying guides, and detailed analysis',
+        examples: 'Product features, user experiences, comparisons, pros and cons, recommendations',
+        tone: 'informative',
+        length: 'medium',
+        audience: ['Consumers', 'Shoppers', 'Tech Enthusiasts', 'Review Readers']
+    },
+    news: {
+        keyPoints: 'Current events, news analysis, industry updates, trend reports, and breaking news coverage',
+        examples: 'Recent events, industry news, trend analysis, current affairs, news updates',
+        tone: 'professional',
+        length: 'medium',
+        audience: ['News Readers', 'Industry Professionals', 'General Public', 'Analysts']
+    },
+    // Lifestyle Templates
+    health: {
+        keyPoints: 'Health tips, fitness advice, nutrition guidance, mental wellness, and healthy living strategies',
+        examples: 'Fitness routines, healthy recipes, wellness practices, mental health tips, nutrition advice',
+        tone: 'friendly',
+        length: 'medium',
+        audience: ['Health Enthusiasts', 'Fitness Seekers', 'Wellness Advocates', 'General Public']
+    },
+    travel: {
+        keyPoints: 'Travel destinations, travel tips, itineraries, travel experiences, and destination guides',
+        examples: 'Travel destinations, itinerary examples, travel tips, destination reviews, travel experiences',
+        tone: 'friendly',
+        length: 'medium',
+        audience: ['Travelers', 'Adventure Seekers', 'Tourists', 'Travel Enthusiasts']
+    },
+    food: {
+        keyPoints: 'Recipes, cooking tips, restaurant reviews, culinary experiences, and food culture',
+        examples: 'Recipe examples, cooking techniques, restaurant experiences, food trends, culinary tips',
+        tone: 'friendly',
+        length: 'medium',
+        audience: ['Food Lovers', 'Home Cooks', 'Foodies', 'Culinary Enthusiasts']
+    }
+};
+
+// Template functionality - opens modal instead of prompt
 templateBtn.addEventListener('click', () => {
-    const templates = {
-        'Tech Blog': {
-            keyPoints: 'Latest technology trends, innovations, and best practices',
-            examples: 'AI, cloud computing, cybersecurity, software development',
-            tone: 'informative',
-            audience: ['Developers', 'Tech Enthusiasts', 'IT Professionals']
-        },
-        'Marketing': {
-            keyPoints: 'Digital marketing strategies, SEO, content marketing, social media',
-            examples: 'Content marketing, email campaigns, social media trends',
-            tone: 'professional',
-            audience: ['Marketers', 'Business Owners', 'Content Creators']
-        },
-        'Design': {
-            keyPoints: 'UI/UX design principles, trends, tools, and best practices',
-            examples: 'Design systems, user experience, visual design trends',
-            tone: 'friendly',
-            audience: ['Designers', 'UI/UX Professionals', 'Creatives']
-        }
-    };
-    
-    const templateNames = Object.keys(templates);
-    const selected = prompt(`Choose template:\n${templateNames.map((t, i) => `${i + 1}. ${t}`).join('\n')}`);
-    const index = parseInt(selected) - 1;
-    
-    if (index >= 0 && index < templateNames.length) {
-        const template = templates[templateNames[index]];
-        keyPoints.value = template.keyPoints;
-        examples.value = template.examples;
-        tone.value = template.tone;
-        template.audience.forEach(tag => addTag(tag));
-        updateTopicPreview();
-        keyPointsCount.textContent = keyPoints.value.length;
-        examplesCount.textContent = examples.value.length;
+    const templatesModal = document.getElementById('templatesModal');
+    if (templatesModal) {
+        templatesModal.classList.remove('hidden');
     }
 });
 
@@ -1126,16 +1209,76 @@ function getCsrfToken() {
     return '';
 }
 
-// Initialize
+// Load template from sessionStorage if available
 window.addEventListener('load', () => {
+    // Check for template data from sessionStorage
+    const templateData = sessionStorage.getItem('template');
+    if (templateData) {
+        try {
+            const template = JSON.parse(templateData);
+            applyTemplate(template);
+            sessionStorage.removeItem('template');
+        } catch (error) {
+            console.error('Error loading template:', error);
+            sessionStorage.removeItem('template');
+        }
+    }
+    
     keyPoints.focus();
     updateTopicPreview();
     updateAudienceCount();
     updateStats('');
 });
 
-// Make removeTag available globally
+// Apply template function
+function applyTemplate(template) {
+    if (!template) return;
+    
+    // Apply template data
+    if (template.keyPoints) {
+        keyPoints.value = template.keyPoints;
+        keyPointsCount.textContent = keyPoints.value.length;
+    }
+    if (template.examples) {
+        examples.value = template.examples;
+        examplesCount.textContent = examples.value.length;
+    }
+    if (template.tone) {
+        tone.value = template.tone;
+    }
+    if (template.length) {
+        length.value = template.length;
+    }
+    
+    // Clear existing tags and add new ones
+    if (template.audience && Array.isArray(template.audience)) {
+        audienceTagList = [];
+        renderTags();
+        template.audience.forEach(tag => {
+            addTag(tag);
+        });
+    }
+    
+    // Update UI
+    updateTopicPreview();
+    updateAudienceCount();
+    
+    // Show success notification
+    if (templateBtn) {
+        const originalText = templateBtn.textContent;
+        templateBtn.textContent = '✓ Template Loaded';
+        templateBtn.style.background = '#10b981';
+        setTimeout(() => {
+            templateBtn.textContent = originalText;
+            templateBtn.style.background = '';
+        }, 2000);
+    }
+}
+
+// Make functions available globally
 window.removeTag = removeTag;
+window.applyTemplate = applyTemplate;
+window.allTemplates = allTemplates;
 
 // ==================== Agent Management ====================
 

@@ -7,6 +7,208 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'blog_app/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'blog_app/css/home.css' %}">
+    <style>
+        .history-toolbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .search-box svg {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: #94a3b8;
+        }
+        
+        .toolbar-select {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .toolbar-select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .filter-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: #e0e7ff;
+            color: #4338ca;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .filter-badge button {
+            background: none;
+            border: none;
+            color: #4338ca;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 2px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 2px;
+        }
+        
+        .view-toggle button {
+            padding: 6px 10px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .view-toggle button.active {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .posts-list-view {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .post-list-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            gap: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .post-list-item:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .post-list-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .post-list-actions {
+            display: flex;
+            gap: 6px;
+            align-items: flex-start;
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 12px;
+            padding: 10px 12px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #64748b;
+        }
+        
+        .stat-item strong {
+            color: #0f172a;
+            font-weight: 600;
+        }
+        
+        .bulk-actions {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .bulk-actions.active {
+            display: flex;
+        }
+        
+        .post-card input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        .empty-filters {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+        
+        .empty-filters svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+    </style>
 </head>
 <body>
     <!-- Left Navigation Bar -->
@@ -59,33 +261,162 @@
                     <h1>History</h1>
                     <p class="dashboard-subtitle">All your blog posts in one place</p>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <select id="filterStatus" class="toolbar-select" style="padding: 8px 12px;">
-                        <option value="">All Status</option>
-                        <option value="completed">Completed</option>
-                        <option value="processing">Processing</option>
-                        <option value="pending">Pending</option>
-                        <option value="failed">Failed</option>
-                    </select>
-                    <select id="filterSaved" class="toolbar-select" style="padding: 8px 12px;">
-                        <option value="">All Posts</option>
-                        <option value="true">Saved Only</option>
-                    </select>
+                <a href="/new/" class="btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    New Post
+                </a>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <strong>{{ stats.total }}</strong> Total
+                </div>
+                <div class="stat-item">
+                    <strong>{{ stats.completed }}</strong> Completed
+                </div>
+                <div class="stat-item">
+                    <strong>{{ stats.processing }}</strong> Processing
+                </div>
+                <div class="stat-item">
+                    <strong>{{ stats.pending }}</strong> Pending
+                </div>
+                <div class="stat-item">
+                    <strong>{{ stats.failed }}</strong> Failed
+                </div>
+                <div class="stat-item">
+                    <strong>{{ stats.saved }}</strong> Saved
                 </div>
             </div>
 
+            <!-- Bulk Actions -->
+            <div class="bulk-actions" id="bulkActions">
+                <span id="selectedCount">0</span> selected
+                <button class="btn-secondary small" onclick="bulkSave()">Save Selected</button>
+                <button class="btn-secondary small" onclick="bulkDelete()" style="color: #dc2626;">Delete Selected</button>
+                <button class="btn-link small" onclick="clearSelection()">Clear</button>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="history-toolbar">
+                <div class="search-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search posts..." value="{{ current_filters.q }}">
+                </div>
+                
+                <select id="filterStatus" class="toolbar-select">
+                    <option value="">All Status</option>
+                    <option value="completed" {% if current_filters.status == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="processing" {% if current_filters.status == 'processing' %}selected{% endif %}>Processing</option>
+                    <option value="pending" {% if current_filters.status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="failed" {% if current_filters.status == 'failed' %}selected{% endif %}>Failed</option>
+                </select>
+                
+                <select id="filterSaved" class="toolbar-select">
+                    <option value="">All Posts</option>
+                    <option value="true" {% if current_filters.saved == 'true' %}selected{% endif %}>Saved Only</option>
+                </select>
+                
+                {% if tones %}
+                <select id="filterTone" class="toolbar-select">
+                    <option value="">All Tones</option>
+                    {% for tone in tones %}
+                    <option value="{{ tone }}" {% if current_filters.tone == tone %}selected{% endif %}>{{ tone|title }}</option>
+                    {% endfor %}
+                </select>
+                {% endif %}
+                
+                <select id="sortBy" class="toolbar-select">
+                    <option value="-created_at" {% if current_filters.sort == '-created_at' %}selected{% endif %}>Newest First</option>
+                    <option value="created_at" {% if current_filters.sort == 'created_at' %}selected{% endif %}>Oldest First</option>
+                    <option value="-updated_at" {% if current_filters.sort == '-updated_at' %}selected{% endif %}>Recently Updated</option>
+                    <option value="-word_count" {% if current_filters.sort == '-word_count' %}selected{% endif %}>Longest First</option>
+                    <option value="word_count" {% if current_filters.sort == 'word_count' %}selected{% endif %}>Shortest First</option>
+                </select>
+                
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="grid" title="Grid View">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </button>
+                    <button class="view-btn" data-view="list" title="List View">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Filters -->
+            {% if current_filters.status or current_filters.saved or current_filters.q or current_filters.tone %}
+            <div class="filter-badges">
+                {% if current_filters.q %}
+                <span class="filter-badge">
+                    Search: "{{ current_filters.q }}"
+                    <button onclick="removeFilter('q')">×</button>
+                </span>
+                {% endif %}
+                {% if current_filters.status %}
+                <span class="filter-badge">
+                    Status: {{ current_filters.status|title }}
+                    <button onclick="removeFilter('status')">×</button>
+                </span>
+                {% endif %}
+                {% if current_filters.saved %}
+                <span class="filter-badge">
+                    Saved Only
+                    <button onclick="removeFilter('saved')">×</button>
+                </span>
+                {% endif %}
+                {% if current_filters.tone %}
+                <span class="filter-badge">
+                    Tone: {{ current_filters.tone|title }}
+                    <button onclick="removeFilter('tone')">×</button>
+                </span>
+                {% endif %}
+                <a href="/history/" class="btn-link small">Clear All</a>
+            </div>
+            {% endif %}
+
+            <!-- Posts Container -->
             <div id="postsContainer" class="posts-grid">
                 {% for post in posts %}
-                <div class="post-card" data-status="{{ post.status }}" data-saved="{{ post.is_saved }}">
-                    <div class="post-card-header">
-                        <h3>{{ post.title|default:post.topic|truncatewords:10 }}</h3>
-                        <div style="display: flex; gap: 6px; align-items: center;">
-                            {% if post.is_saved %}
-                            <span class="badge saved">Saved</span>
+                <div class="post-card" data-status="{{ post.status }}" data-saved="{{ post.is_saved }}" data-post-id="{{ post.id }}">
+                    <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+                        <input type="checkbox" class="post-checkbox" onchange="updateBulkActions()">
+                        <div style="flex: 1;">
+                            <div class="post-card-header">
+                                <h3>{{ post.title|default:post.topic|truncatewords:10 }}</h3>
+                                <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+                                    {% if post.is_saved %}
+                                    <span class="badge saved">Saved</span>
+                                    {% endif %}
+                                    {% if post.tone %}
+                                    <span class="badge tone">{{ post.tone|title }}</span>
+                                    {% endif %}
+                                    <span class="badge status-{{ post.status }}" style="background: {% if post.status == 'completed' %}#d1fae5; color: #065f46;{% elif post.status == 'processing' %}#dbeafe; color: #1e40af;{% elif post.status == 'failed' %}#fee2e2; color: #991b1b;{% else %}#f1f5f9; color: #475569;{% endif %}">
+                                        {{ post.status|title }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% if post.subtitle %}
+                            <p style="font-size: 11px; color: #64748b; margin: 4px 0;">{{ post.subtitle|truncatewords:8 }}</p>
                             {% endif %}
-                            <span class="badge" style="background: {% if post.status == 'completed' %}#d1fae5; color: #065f46;{% elif post.status == 'processing' %}#dbeafe; color: #1e40af;{% elif post.status == 'failed' %}#fee2e2; color: #991b1b;{% else %}#f1f5f9; color: #475569;{% endif %}">
-                                {{ post.status|title }}
-                            </span>
                         </div>
                     </div>
                     {% if post.content %}
@@ -94,11 +425,29 @@
                     <p class="post-preview" style="color: #94a3b8; font-style: italic;">No content yet...</p>
                     {% endif %}
                     <div class="post-meta">
-                        <span>{{ post.word_count }} words</span>
-                        <span>•</span>
-                        <span>{{ post.reading_time }} min read</span>
-                        <span>•</span>
-                        <span>{{ post.created_at|date:"M d, Y" }}</span>
+                        <span class="meta-item">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                            </svg>
+                            {{ post.word_count }} words
+                        </span>
+                        <span class="meta-item">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            {{ post.reading_time }} min
+                        </span>
+                        <span class="meta-item">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            {{ post.created_at|date:"M d, Y" }}
+                        </span>
                     </div>
                     <div class="post-actions">
                         {% if post.status == 'completed' %}
@@ -112,13 +461,19 @@
                 </div>
                 {% empty %}
                 <div class="empty-state" style="grid-column: 1 / -1;">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: #cbd5e1;">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    <h3>No posts yet</h3>
-                    <p>Your blog post history will appear here</p>
-                    <a href="/new/" class="btn-primary">Create New Post</a>
+                    <div class="empty-state-icon">
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: #cbd5e1;">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <h3>No posts found</h3>
+                    <p>{% if current_filters.q or current_filters.status or current_filters.saved %}Try adjusting your filters{% else %}Your blog post history will appear here{% endif %}</p>
+                    {% if current_filters.q or current_filters.status or current_filters.saved %}
+                    <a href="/history/" class="btn-primary" style="margin-top: 12px;">Clear Filters</a>
+                    {% else %}
+                    <a href="/new/" class="btn-primary" style="margin-top: 12px;">Create New Post</a>
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
@@ -128,4 +483,3 @@
     <script src="{% static 'blog_app/js/history.js' %}"></script>
 </body>
 </html>
-

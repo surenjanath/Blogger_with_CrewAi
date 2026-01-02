@@ -15,21 +15,56 @@ from .agents.crew_setup import generate_blog_post, get_ollama_llm
 
 def index(request):
     """Render the homepage/dashboard."""
+    from django.utils import timezone
+    from datetime import timedelta
+    
     # Get stats
     total_posts = BlogPost.objects.count()
     completed_posts = BlogPost.objects.filter(status='completed').count()
+    processing_posts = BlogPost.objects.filter(status='processing').count()
+    pending_posts = BlogPost.objects.filter(status='pending').count()
+    failed_posts = BlogPost.objects.filter(status='failed').count()
     saved_posts = BlogPost.objects.filter(is_saved=True).count()
-    recent_posts = BlogPost.objects.filter(status='completed').order_by('-created_at')[:5]
     
-    # Calculate total words
-    total_words = sum(post.word_count for post in BlogPost.objects.filter(status='completed'))
+    # Recent posts
+    recent_posts = BlogPost.objects.filter(status='completed').order_by('-created_at')[:6]
+    
+    # Processing posts (for activity feed)
+    active_posts = BlogPost.objects.filter(status__in=['processing', 'pending']).order_by('-created_at')[:5]
+    
+    # Calculate total words and average
+    completed_posts_list = BlogPost.objects.filter(status='completed')
+    total_words = sum(post.word_count for post in completed_posts_list)
+    avg_words = int(total_words / completed_posts_list.count()) if completed_posts_list.count() > 0 else 0
+    
+    # Posts created in last 7 days
+    week_ago = timezone.now() - timedelta(days=7)
+    posts_last_week = BlogPost.objects.filter(created_at__gte=week_ago).count()
+    
+    # Success rate
+    success_rate = int((completed_posts / total_posts * 100)) if total_posts > 0 else 0
+    
+    # Most used tone
+    tone_counts = {}
+    for post in completed_posts_list:
+        tone = post.tone or 'friendly'
+        tone_counts[tone] = tone_counts.get(tone, 0) + 1
+    most_used_tone = max(tone_counts.items(), key=lambda x: x[1])[0] if tone_counts else 'friendly'
     
     stats = {
         'total_posts': total_posts,
         'completed_posts': completed_posts,
+        'processing_posts': processing_posts,
+        'pending_posts': pending_posts,
+        'failed_posts': failed_posts,
         'saved_posts': saved_posts,
         'total_words': total_words,
+        'avg_words': avg_words,
+        'posts_last_week': posts_last_week,
+        'success_rate': success_rate,
+        'most_used_tone': most_used_tone,
         'recent_posts': recent_posts,
+        'active_posts': active_posts,
     }
     
     return render(request, 'blog_app/home.html', {'stats': stats})
@@ -47,8 +82,87 @@ def settings(request):
 
 def history(request):
     """Render the history page with all blog posts."""
-    posts = BlogPost.objects.filter(status='completed').order_by('-created_at')
-    return render(request, 'blog_app/history.html', {'posts': posts})
+    from django.db.models import Q
+    
+    # Get filter parameters
+    status_filter = request.GET.get('status', '')
+    saved_filter = request.GET.get('saved', '')
+    search_query = request.GET.get('q', '')
+    sort_by = request.GET.get('sort', '-created_at')
+    tone_filter = request.GET.get('tone', '')
+    
+    # Start with all posts
+    posts = BlogPost.objects.all()
+    
+    # Apply filters
+    if status_filter:
+        posts = posts.filter(status=status_filter)
+    else:
+        # By default, show all statuses
+        pass
+    
+    if saved_filter == 'true':
+        posts = posts.filter(is_saved=True)
+    
+    if tone_filter:
+        posts = posts.filter(tone=tone_filter)
+    
+    # Apply search
+    if search_query:
+        posts = posts.filter(
+            Q(topic__icontains=search_query) |
+            Q(title__icontains=search_query) |
+            Q(content__icontains=search_query)
+        )
+    
+    # Apply sorting - convert to list first
+    posts_list = list(posts)
+    
+    # Sort based on sort_by parameter
+    if sort_by == '-word_count':
+        posts_list.sort(key=lambda p: p.word_count, reverse=True)
+    elif sort_by == 'word_count':
+        posts_list.sort(key=lambda p: p.word_count, reverse=False)
+    elif sort_by == '-created_at':
+        posts_list.sort(key=lambda p: p.created_at, reverse=True)
+    elif sort_by == 'created_at':
+        posts_list.sort(key=lambda p: p.created_at, reverse=False)
+    elif sort_by == '-updated_at':
+        posts_list.sort(key=lambda p: p.updated_at, reverse=True)
+    elif sort_by == 'updated_at':
+        posts_list.sort(key=lambda p: p.updated_at, reverse=False)
+    else:
+        # Default: newest first
+        posts_list.sort(key=lambda p: p.created_at, reverse=True)
+    
+    posts = posts_list
+    
+    # Get statistics for filters
+    all_posts = BlogPost.objects.all()
+    stats = {
+        'total': all_posts.count(),
+        'completed': all_posts.filter(status='completed').count(),
+        'processing': all_posts.filter(status='processing').count(),
+        'pending': all_posts.filter(status='pending').count(),
+        'failed': all_posts.filter(status='failed').count(),
+        'saved': all_posts.filter(is_saved=True).count(),
+    }
+    
+    # Get unique tones for filter
+    tones = BlogPost.objects.exclude(tone='').values_list('tone', flat=True).distinct()
+    
+    return render(request, 'blog_app/history.html', {
+        'posts': posts,
+        'stats': stats,
+        'tones': tones,
+        'current_filters': {
+            'status': status_filter,
+            'saved': saved_filter,
+            'q': search_query,
+            'sort': sort_by,
+            'tone': tone_filter,
+        }
+    })
 
 
 def edit_post(request, post_id):
