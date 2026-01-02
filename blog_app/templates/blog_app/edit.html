@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Post - Blog Post Builder</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'blog_app/css/style.css' %}">
+</head>
+<body>
+    <!-- Left Navigation Bar -->
+    <nav class="left-nav">
+        <a href="/" class="nav-icon" title="Home">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+        </a>
+        <a href="/new/" class="nav-icon plus-icon" title="New Post">+</a>
+        <a href="/history/" class="nav-icon" title="History">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        </a>
+        <button type="button" class="nav-icon" title="Templates">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+        </button>
+        <a href="/settings/" class="nav-icon" title="Settings">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12 1v6m0 6v6m9-9h-6m-6 0H3m15.364 6.364l-4.243-4.243m-4.242 0L5.636 18.364m12.728 0l-4.243-4.243m-4.242 0L5.636 5.636"></path>
+            </svg>
+        </a>
+        <div class="nav-dots">
+            <div class="dot yellow" title="Status"></div>
+            <div class="dot purple" title="Status"></div>
+            <div class="dot green" title="Status"></div>
+        </div>
+        <button type="button" class="nav-icon" title="Search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+        </button>
+    </nav>
+
+    <div class="main-container">
+        <!-- Right Content Area -->
+        <main class="content-area" style="margin-left: 0; width: 100%;">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <a href="/history/" class="toolbar-btn">← Back</a>
+                    <div class="toolbar-divider"></div>
+                    <button class="toolbar-btn" title="Save" id="saveEditBtn">💾 Save</button>
+                </div>
+                <div class="toolbar-right">
+                    <div class="stats">
+                        <span id="wordCount">0 words</span>
+                        <span class="divider">•</span>
+                        <span id="readTime">0 min read</span>
+                    </div>
+                    <button class="toolbar-btn" id="exportBtn">Export</button>
+                </div>
+            </div>
+
+            <!-- Editor -->
+            <div class="editor-container">
+                <div class="editor-content">
+                    <input type="text" id="postTitle" class="post-title-input" value="{{ post.topic }}" placeholder="Post Title">
+                    <div contenteditable="true" id="postContent" class="post-content-editable">
+                        {{ post.content|safe }}
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const postId = {{ post.id }};
+        const postContent = document.getElementById('postContent');
+        const postTitle = document.getElementById('postTitle');
+        const saveEditBtn = document.getElementById('saveEditBtn');
+        const wordCount = document.getElementById('wordCount');
+        const readTime = document.getElementById('readTime');
+
+        function updateStats() {
+            const text = postContent.innerText || postContent.textContent;
+            const words = text.split(/\s+/).filter(word => word.length > 0).length;
+            const readingTime = Math.ceil(words / 200);
+            
+            wordCount.textContent = `${words} words`;
+            readTime.textContent = `${readingTime} min read`;
+        }
+
+        postContent.addEventListener('input', updateStats);
+        postTitle.addEventListener('input', updateStats);
+
+        saveEditBtn.addEventListener('click', async () => {
+            saveEditBtn.disabled = true;
+            saveEditBtn.textContent = 'Saving...';
+            
+            try {
+                const response = await fetch(`/api/post/${postId}/update/`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken(),
+                    },
+                    body: JSON.stringify({
+                        title: postTitle.value,
+                        topic: postTitle.value,
+                        content: postContent.innerHTML
+                    }),
+                });
+                
+                if (response.ok) {
+                    saveEditBtn.textContent = '✓ Saved';
+                    setTimeout(() => {
+                        saveEditBtn.textContent = '💾 Save';
+                        saveEditBtn.disabled = false;
+                    }, 2000);
+                } else {
+                    alert('Failed to save');
+                    saveEditBtn.disabled = false;
+                    saveEditBtn.textContent = '💾 Save';
+                }
+            } catch (error) {
+                console.error('Error saving:', error);
+                alert('Error saving post');
+                saveEditBtn.disabled = false;
+                saveEditBtn.textContent = '💾 Save';
+            }
+        });
+
+        function getCsrfToken() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') return value;
+            }
+            return '';
+        }
+
+        updateStats();
+    </script>
+    <style>
+        .post-title-input {
+            width: 100%;
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f172a;
+            border: none;
+            outline: none;
+            padding: 0;
+            margin-bottom: 24px;
+            font-family: inherit;
+        }
+        .post-content-editable {
+            min-height: 400px;
+            font-size: 15px;
+            line-height: 1.75;
+            color: #334155;
+            outline: none;
+        }
+        .post-content-editable:focus {
+            outline: none;
+        }
+    </style>
+</body>
+</html>
+

@@ -1,0 +1,7 @@
+django>=4.2.0
+djangorestframework>=3.14.0
+crewai>=0.28.0
+python-dotenv>=1.0.0
+requests
+litellm>=1.0.0
+
